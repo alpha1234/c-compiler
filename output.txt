@@ -1,0 +1,30 @@
+
+
+
+
+
+"/*
+dfh
+dgh
+gh
+gh*/"
+"XFgdfgdfhdth"
+int n;
+char y; 
+printf("#dhghth");
+int rev(int x) {
+int n = 0;
+while(x) {
+	n = n*10 + x%10;  ;
+	x /= 10;
+}
+return (n);
+}
+printf("#include");
+printf("//xfgfg");
+int main() {
+scanf("%d",&n);
+printf("%d",rev(n));
+}
+
+

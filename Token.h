@@ -13,7 +13,7 @@ struct Token {
         std::string output = "<";
         switch (type) {
             case Type::CHAR_LITERAL :
-                output = output + "CHAR_LITERAL," + value.c;
+                output = output + "CHAR_LITERAL," + std::to_string((int)value.c);
                 break;
             case Type::SPECIAL_SYMBOL :
                 output = output + "SPECIAL_SYMBOL," + value.c;
@@ -35,6 +35,18 @@ struct Token {
                 break;
             case Type::ARITH_OPERATOR:
                 output = output + "ARITH_OPERATOR," + value.s;
+                break;
+            case Type::MEMBER_ACCESS:
+                output = output + "MEMBER_ACCESS," + value.s;
+                break;
+            case Type::ASSIGN_OPERATOR:
+                output = output + "ASSIGN_OPERATOR," + value.s;
+                break;
+            case Type::LOGICAL_OPERATOR:
+                output = output + "LOGICAL_OPERATOR," + value.s;
+                break;
+            case Type::BITWISE_OPERATOR:
+                output = output + "BITWISE_OPERATOR," + value.s;
                 break;
             case Type::NEWLINE:
                 return "\n";

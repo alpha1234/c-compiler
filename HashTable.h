@@ -1,10 +1,12 @@
+#pragma once
+
 #define TABLE_SIZE 20
 
 
-template <typename V>
+template<typename V>
 class Node {
 public:
-    Node(int key,V value) :
+    Node(int key, V &value) :
             key(key), value(value), next(NULL) {
     }
 
@@ -14,7 +16,7 @@ public:
 };
 
 
-template <typename V>
+template<typename V>
 class HashMap {
 public:
     HashMap() {
@@ -33,7 +35,7 @@ public:
             }
             table[i] = NULL;
         }
-        delete [] table;
+        delete[] table;
     }
 
     V search(int key) {
@@ -50,13 +52,13 @@ public:
     }
 
 
-    int search(V value) {
+    int search(V &value) {
         Node<V> *entry = nullptr;
 
-        for(int i = 0;i<TABLE_SIZE;i++) {
+        for (int i = 0; i < TABLE_SIZE; i++) {
             entry = table[i];
             while (entry != NULL) {
-                if (entry->value->name == value->name) {
+                if (entry->value == value) {
                     return entry->key;
                 }
                 entry = entry->next;
@@ -93,10 +95,10 @@ public:
 
     void print() {
         Node<V> *entry = nullptr;
-        for(int i = 0;i<TABLE_SIZE;i++) {
+        for (int i = 0; i < TABLE_SIZE; i++) {
             entry = table[i];
             while (entry != NULL) {
-                std::cout<<entry->value;
+                std::cout << entry->key << "\t" << entry->value << "\n";
                 entry = entry->next;
             }
         }
@@ -107,6 +109,7 @@ public:
 private:
     Node<V> **table;
     int lastInsertKey;
+
     int hashFunc(int key) {
         return key % TABLE_SIZE;
     }

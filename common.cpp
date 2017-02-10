@@ -1,9 +1,5 @@
 #include "compiler.h"
-
-#define BUFFER_SIZE 10000
-
-
-FILE *fp = nullptr;
+#include "common.h"
 
 using namespace std;
 
@@ -21,57 +17,83 @@ void copyFile(char source[], char destination[]) {
     FILE *f1 = openFile(source, "r");
     FILE *f2 = openFile(destination, "w");
     char buf[1000];
-    while (size_t size = fread(buf, 1, sizeof(buf)/sizeof(buf[0]), f1)) {
+    while (size_t size = fread(buf, 1, sizeof(buf) / sizeof(buf[0]), f1)) {
         fwrite(buf, 1, size, f2);
     }
     fclose(f1);
     fclose(f2);
 }
 
-void initialize(char *filename) {
-    fp = openFile(filename, "r");
-}
-
-
-void finalize() {
-    fclose(fp);
-}
-
-char next() {
+char next(FILE *fp) {
     return fgetc(fp);
 }
 
-char prev() {
-    if(ftell(fp) == 1) {
+char prev(FILE *fp) {
+    if (ftell(fp) == 1) {
         fseek(fp, -1, SEEK_CUR);
-    }
-    else {
+    } else {
         fseek(fp, -2, SEEK_CUR);
     }
     return fgetc(fp);
 }
 
-void shift(int m) {
-    fseek ( fp , m , SEEK_CUR );
+void shift(FILE *fp, int m) {
+    fseek(fp, m, SEEK_CUR);
 }
 
-void undo(char c) {
-    ungetc(c,fp);
+void undo(FILE *fp, char c) {
+    ungetc(c, fp);
 }
 
-void ab() {
-    cout<<"Position "<<ftell(fp)<<"\n";
+void ab(FILE *fp) {
+    cout << "Position " << ftell(fp) << "\n";
 }
 
 
-void skipWhitespaces() {
+void preprocess(char inputFileName[], char outputFileName[]) {
+    FILE *input = openFile(inputFileName, "r");
+    FILE *output = openFile(outputFileName, "w");
     char c;
-    while(c = next()) {
-        if( c == EOF)
-            break;
-        if(!isWhitespace(c)){
-            shift(-1);
-            break;
+    bool isPreviousNonSpaceNewline = true;
+    while ((c = next(input)) != EOF) {
+        if (c == '"') {
+            fputc('"', output);
+            while ((c = next(input)) != '"') {
+                fputc(c, output);
+            }
+            fputc('"', output);
+            continue;
         }
+        if (c == '#' && isPreviousNonSpaceNewline) {
+            while ((c = next(input)) != '\n');
+            isPreviousNonSpaceNewline = true;
+        }
+        if (isWhitespace(c)) {
+            isPreviousNonSpaceNewline = true;
+        } else {
+            isPreviousNonSpaceNewline = false;
+        }
+        if (c == '/') {
+            c = next(input);
+            if (c == '*') {
+                while ((c = next(input)) != EOF) {
+                    if (c == '\n') {
+                        fputc(c, output);
+                    } else if (c == '*' && next(input) == '/') {
+                        break;
+                    }
+                }
+                continue;
+            } else if (c == '/') {
+                while (next(input) != '\n');
+                fputc('\n', output);
+                continue;
+            }
+            fputc('/', output);
+        }
+        fputc(c, output);
     }
+    fclose(output);
+    fclose(input);
+
 }

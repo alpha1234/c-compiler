@@ -1,9 +1,17 @@
 #include "compiler.h"
 
 using namespace std;
+HashMap<SymbolTableRow *> symbolTable;
 
+const vector<char> SPECIAL_SYMBOLS = {
+        '(', ')', ',', ';', '[', ']', '{', '}', '?', '~', ':'
+};
 
-vector<Token> lexemes;
+const vector<char> OPERATORS = {
+        '+', '-', '/', '*','%', '=','>','<','&','|',
+};
+
+vector<Token *> lexemes;
 int curlyBracesCount = 0;
 
 template<typename T>
@@ -17,52 +25,28 @@ int indexOf(T s, vector <T> array) {
 }
 
 
-bool iswhitespace(int c) {
-    return c == ' ' || c == '\t' || c == '\f' || c == '\v';
+inline bool isSpecialSymbol(char c) {
+    return indexOf(c,SPECIAL_SYMBOLS) != -1;
 }
 
-bool isAlphabet(char c) {
-    return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+inline bool isOperator(char c) {
+    return indexOf(c,OPERATORS) != -1;
 }
 
-bool isDigit(char c) {
-    return (c >= '0' && c <= '9');
-}
 
-char skip_whitespaces(char c) {
-    if (!iswhitespace(c)) {
-        return c;
-    }
-    while (1) {
-        c = getNextChar();
-        if (!iswhitespace(c)) {
-            return c;
-        }
-    }
-}
-
-Token makeToken(Type type) {
-    Token token(type);
+inline Token * makeToken(Type type) {
+    Token *token = new Token(type);
     return token;
 }
 
-Token makeToken(Type type, string value) {
-    Token token(type,const_cast<char*>(value.c_str()));
+template <typename T>
+inline Token * makeToken(Type type, T c) {
+    Token *token = new Token(type,c);
     return token;
 }
 
-Token makeToken(Type type, char c) {
-    Token token(type,c);
-    return token;
-}
 
-Token makeToken(Type type, int id) {
-    Token token(type,id);
-    return token;
-}
-
-/*
-Token readOperator(char c) {
+Token * readOperator(char c) {
     char state = 0;
     while (1) {
         switch (state) {
@@ -80,7 +64,7 @@ Token readOperator(char c) {
 
                 break;
             case 1:
-                c = getNextChar();
+                c = next();
                 if (c == '=') state = 2;
                 else if (c == '>') state = 3;
                 else state = 4;
@@ -90,32 +74,33 @@ Token readOperator(char c) {
             case 3:
                 return makeToken(Type::REL_OPERATOR, "!=");
             case 4:
-                getPreviousChar();
+                prev();
                 return makeToken(Type::REL_OPERATOR, "<");
             case 5:
-                c = getNextChar();
+                c = next();
                 if (c == '=') state = 9;
                 else state = 10;
                 break;
             case 6:
-                c = getNextChar();
+                c = next();
                 if (c == '=') state = 7;
                 else state = 8;
                 break;
             case 7:
                 return makeToken(Type::REL_OPERATOR, ">=");
             case 8:
-                getPreviousChar();
+                prev();
                 return makeToken(Type::REL_OPERATOR, ">");
             case 9:
                 return makeToken(Type::REL_OPERATOR, "==");
             case 10:
-                getPreviousChar();
+                prev();
                 return makeToken(Type::REL_OPERATOR, "=");
         }
     }
 }
-*/
+
+/*
 
 Token readRelationalOperator(char c) {
     char state = 0;
@@ -127,7 +112,7 @@ Token readRelationalOperator(char c) {
                 else if (c == '>') state = 6;
                 break;
             case 1:
-                c = getNextChar();
+                c = next();
                 if (c == '=') state = 2;
                 else if (c == '>') state = 3;
                 else state = 4;
@@ -137,27 +122,27 @@ Token readRelationalOperator(char c) {
             case 3:
                 return makeToken(Type::REL_OPERATOR, "!=");
             case 4:
-                getPreviousChar();
+                prev();
                 return makeToken(Type::REL_OPERATOR, "<");
             case 5:
-                c = getNextChar();
+                c = next();
                 if (c == '=') state = 9;
                 else state = 10;
                 break;
             case 6:
-                c = getNextChar();
+                c = next();
                 if (c == '=') state = 7;
                 else state = 8;
                 break;
             case 7:
                 return makeToken(Type::REL_OPERATOR, ">=");
             case 8:
-                getPreviousChar();
+                prev();
                 return makeToken(Type::REL_OPERATOR, ">");
             case 9:
                 return makeToken(Type::REL_OPERATOR, "==");
             case 10:
-                getPreviousChar();
+                prev();
                 return makeToken(Type::REL_OPERATOR, "=");
         }
     }
@@ -176,7 +161,7 @@ Token readArithOperator(char c) {
 
                 break;
             case 1:
-                c = getNextChar();
+                c = next();
                 if (c == '+') {
                     state = 2;
                 } else {
@@ -186,10 +171,10 @@ Token readArithOperator(char c) {
             case 2:
                 return makeToken(Type::ARITH_OPERATOR, "++");
             case 3:
-                getPreviousChar();
+                prev();
                 return makeToken(Type::ARITH_OPERATOR, "+");
             case 4:
-                c = getNextChar();
+                c = next();
                 if (c == '-') {
                     state = 5;
                 } else {
@@ -199,7 +184,7 @@ Token readArithOperator(char c) {
             case 5:
                 return makeToken(Type::ARITH_OPERATOR, "--");
             case 6:
-                getPreviousChar();
+                prev();
                 return makeToken(Type::ARITH_OPERATOR, "-");
             case 7:
                 return makeToken(Type::ARITH_OPERATOR, "/");
@@ -210,16 +195,16 @@ Token readArithOperator(char c) {
         }
     }
 }
-
-Token readNumber(char c) {
+*/
+Token * readNumber(char c) {
     string num;
     num.push_back(c);
     while (1) {
-        c = getNextChar();
+        c = next();
         if (c >= '0' && c <= '9') {
             num.push_back(c);
         } else {
-            getPreviousChar();
+            move(-1);
             break;
         }
     }
@@ -227,31 +212,64 @@ Token readNumber(char c) {
 }
 
 
-Token readStringLiteral() {
+Token * readStringLiteral() {
     string s;
-    char c = getNextChar();
+    char c = next();
     while (c != '"') {
+        if(c == EOF) {
+            cout<<"Unclosed double quote";
+            exit(1);
+        }
         s.push_back(c);
-        c = getNextChar();
+        c = next();
     }
     return makeToken(Type::STRING_LITERAL, s);
 }
 
+char readEscapedChar() {
+    switch (next()) {
+        case 'a':
+            return '\a';
+        case 'b':
+            return '\b';
+        case 'f':
+            return '\f';
+        case 'n':
+            return '\n';
+        case 'r':
+            return '\r';
+        case 't':
+            return '\t';
+        case 'v':
+            return '\v';
+        case '\\':
+            return '\\';
+    }
+}
 
-Token readChar() {
-    char c = getNextChar();
-    getNextChar();
+
+Token * readChar() {
+    char c = next();
+    if(c == '\\') {
+        /* Escaped Char */
+        c = readEscapedChar();
+    }
+    next();
     return makeToken(Type::CHAR_LITERAL, c);
 }
 
-Token readIdentifier(char c) {
+
+
+Token * readIdentifier(char c) {
     string s;
     s.push_back(c);
 
-    while (1) {
-        c = getNextChar();
+    while ((c = next())) {
+        if(c == EOF) {
+            break;
+        }
         if (!(isAlphabet(c) || isDigit(c) || c == '_')) {
-            getPreviousChar();
+            shift(-1);
             break;
         }
         s.push_back(c);
@@ -261,118 +279,52 @@ Token readIdentifier(char c) {
         return makeToken(Type::KEYWORD, s);
     }
 
-    struct symbolTableRow row;
-    row.name = s;
-    if(curlyBracesCount == 0) {
-        row.scope = 'G';
-    }
-    else {
-        row.scope = 'L';
-    }
-    id = indexOfIdentifier(s,row.scope);
+    SymbolTableRow *row = new SymbolTableRow;
+    row->name = s;
+    id = symbolTable.search(row);
     if (id != -1) {
         return makeToken(Type::IDENTIFIER, id);
     }
-    c = skip_whitespaces(getNextChar());
-    getPreviousChar();
-    if(c == '(') {
-        row.type = "FUNC";
-       // row.returnType = lexemes.back().s;
-        row.size = -1;
-        int count = 0;
-        string parameters;
-        getNextChar();
-        count++;
-        while(1) {
-            c = getNextChar();
-            count++;
-            if(c == ')') {
-                break;
-            }
-            parameters.push_back(c);
-        }
-        while(count--) {
-            getPreviousChar();
-        }
-        row.arguments = parameters;
-        count = 0;
-        if(parameters.size() > 0) {
-            count++;
-        }
-        for(int i = 0;i<parameters.size();i++) {
-            if(parameters[i] == ',') {
-                count++;
-            }
-        }
-        row.noOfArguments = count;
-    }
-    else {
-        row.noOfArguments = -1;
-        row.arguments = "";
-        row.returnType = "\t";
-       // row.type = lexemes.back().s;
-        if(row.type == "int") row.size = sizeof(int);
-        else if(row.type == "char") row.size = sizeof(char);
-        else if(row.type == "double") row.size = sizeof(double);
-        else if(row.type == "float") row.size = sizeof(float);
-        else if(row.type == "string") row.size = sizeof(string);
-    }
-    symbolTable.push_back(row);
-    id = symbolTable.size() - 1;
+    id = symbolTable.insert(row);
     return makeToken(Type::IDENTIFIER, id);
 }
 
 
-Token getNextToken() {
-    char c = getNextChar();
-    c = skip_whitespaces(c);
-    switch (c) {
-        case '\n':
-            return makeToken(Type::NEWLINE);
-        case '>':
-        case '<':
-        case '=':
-            return readRelationalOperator(c);
-        case '+':
-        case '-':
-        case '/':
-        case '*':
-        case '%':
-            return readArithOperator(c);
-        case '0' ... '9':
-            return readNumber(c);
-        case '"':
-            return readStringLiteral();
-        case '\'':
-            return readChar();
-        case 'a' ... 'z':
-        case 'A' ... 'Z' :
-        case '_':
-            return readIdentifier(c);
-        case '(':
-        case ')':
-        case ',':
-        case ';':
-        case '[':
-        case ']':
-        case '{':
-        case '}':
-        case '?':
-        case '~':
-        case ':':
+Token * getNextToken() {
+    skipWhitespaces();
+    char c = next();
+    if(c == '\n') {
+        return makeToken(Type::NEWLINE);
+    }
+    if(isOperator(c)) {
+      //  return readOperator(c);
+    }
+    if(isDigit(c)) {
+        return readNumber(c);
+    }
+    if(c == '"') {
+        return readStringLiteral();
+    }
+    if(c == '\'') {
+        return readChar();
+    }
+    if(isAlphabet(c)) {
+        return readIdentifier(c);
+    }
+    if(isSpecialSymbol(c)) {
         if(c == '{') {
             curlyBracesCount++;
         }
         else if(c == '}') {
             curlyBracesCount--;
         }
-            return makeToken(Type::SPECIAL_SYMBOL, c);
-        case -1 :
-            return makeToken(Type::TEOF);
-       // default:
-         // cout << "Not Matched " << (int)c << "\n";
-
+        return makeToken(Type::SPECIAL_SYMBOL, c);
     }
+    if(c == EOF) {
+        return makeToken(Type::TEOF);
+    }
+    cout<<"NOt MATCHED "<<(int)c<<"\n";
+
 
 }
 
@@ -384,22 +336,18 @@ int main() {
 
     initialize(outputFileName);
 
-    Token token;
+    Token *token;
     while (1) {
         token = getNextToken();
-        if (token.type == Type::TEOF)
+        if (token->type == Type::TEOF)
             break;
-       token.print();
-        //cout << "\n";
+        token->print();
         lexemes.push_back(token);
     }
 
-    closeFile();
-        cout<<"ID\tType\tName\tArguments\tSize\tScope\tReturn Type\tNo Of Args\n";
-
-    for (int i = 0; i < symbolTable.size(); i++) {
-       cout <<i<<"\t"<<symbolTable[i].type <<"\t"<<symbolTable[i].name <<"\t"<<symbolTable[i].arguments<<"\t\t"<<symbolTable[i].size<<"\t"<< symbolTable[i].scope << "\t"<<symbolTable[i].returnType<<"\t"<<symbolTable[i].noOfArguments<<"\n";
-    }
+    finalize();
+    cout << "\nName\n";
+    symbolTable.print();
     return 0;
 }
 

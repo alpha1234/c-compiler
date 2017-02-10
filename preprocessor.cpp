@@ -21,7 +21,7 @@ void preprocess(char fileName[]) {
             while((c = fgetc(fp)) != '\n');
             isPreviousNonSpaceNewline = true;
         }
-        if(c == '\n' || c == ' ' || c == '\t') {
+        if(isWhitespace(c)) {
             isPreviousNonSpaceNewline = true;
         } else {
             isPreviousNonSpaceNewline = false;

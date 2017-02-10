@@ -6,11 +6,14 @@
 #include <array>
 #include <typeinfo>
 #include <string.h>
+#include <unistd.h>
+
+#include "HashTable.h"
 
 
 using namespace std;
 
-const vector <string> RESERVED_KEYWORDS = {
+const vector<string> RESERVED_KEYWORDS = {
         "auto", "break", "case", "char", "const",
         "continue", "default", "do", "double", "else",
         "enum", "extern", "float", "for", "goto",
@@ -30,6 +33,9 @@ const vector <string> ASSIGNMENT_OPERATORS = {
         "%=", "<<=", ">>=", "&=", "^=",
         "|="
 };
+
+
+
 
 enum class Type {
     KEYWORD,
@@ -59,10 +65,10 @@ struct token {
     token(Type t) {
         type = t;
     }
-    token(Type t,char * s1) {
+    token(Type t,string s1) {
         type = t;
-        s = (char *)malloc(sizeof(char) * strlen(s1));
-        strcpy(s,s1);
+        s = (char *)malloc(sizeof(char) * sizeof(s1));
+        strcpy(s,const_cast<char*>(s1.c_str()));
     }
     token(Type t,int id1) {
         type = t;
@@ -111,18 +117,27 @@ typedef struct token Token;
 /* Header Files for common.cpp */
 
 FILE *openFile(string fileName, const char mode[]);
-
 void copyFile(char source[], char destination[]);
-
 void initialize(char *filename);
+void finalize();
+char next();
+char prev();
+void undo(char c);
+void shift(int c);
+void skipWhitespaces();
+void ab();
 
-void closeFile();
+inline bool isWhitespace(int c) {
+    return c == ' ' || c == '\t' || c == '\f' || c == '\v';
+}
 
-bool readNextBuffer();
+inline bool isAlphabet(char c) {
+    return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+}
 
-char getNextChar();
-
-char getPreviousChar();
+inline bool isDigit(char c) {
+    return (c >= '0' && c <= '9');
+}
 
 /* -----------------------------------  */
 
@@ -134,13 +149,12 @@ void preprocess(char fileName[]);
 
 
 /* Header Files for lex.cpp */
-Token getNextToken();
+Token * getNextToken();
 /* -----------------------------------  */
 
 
 /* Header Files for symbol_table.cpp */
 
-int indexOfIdentifier(string s,char scope);
 
 struct symbolTableRow {
     string name;
@@ -150,15 +164,16 @@ struct symbolTableRow {
     int noOfArguments;
     string arguments;
     string returnType;
+
 };
 
+typedef struct symbolTableRow SymbolTableRow;
 
-//extern struct symbolTableRow;
-extern vector<struct symbolTableRow> symbolTable;
+//extern HashMap<SymbolTableRow *> symbolTable;
 
 /* -----------------------------------  */
 
 
-
-
-
+inline ostream& operator<<(ostream& o, const SymbolTableRow* a) {
+    return o << a->name <<"\n";
+}

@@ -1,17 +1,5 @@
-
-
-
-
-
-"/*
-dfh
-dgh
-gh
-gh*/"
-"XFgdfgdfhdth"
-int n;
-char y; 
-printf("#dhghth");
+int y
+int a
 int rev(int x) {
 int n = 0;
 while(x) {
@@ -25,6 +13,5 @@ printf("//xfgfg");
 int main() {
 scanf("%d",&n);
 printf("%d",rev(n));
-}
-
+}aa
 

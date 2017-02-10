@@ -3,11 +3,11 @@
 using namespace std;
 
 
-vector<struct symbolTableRow> symbolTable;
+vector<symbolTableRow *> symbolTable;
 
-int indexOfIdentifier(string s,char scope) {
+int indexOfIdentifier(string s) {
     for (int i = 0; i < symbolTable.size(); i++) {
-        if (symbolTable[i].name == s && symbolTable[i].scope == scope) {
+        if (symbolTable[i]->name == s) {
             return i;
         }
     }

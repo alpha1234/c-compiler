@@ -4,12 +4,6 @@
 
 
 FILE *fp = nullptr;
-/*
-char buffer[2][BUFFER_SIZE + 1] = {0};
-int currentlyLoadedBufferIndex = -1;
-int currentCharIndex = -1;
-int currentBufferIndex = 0;
-*/
 
 using namespace std;
 
@@ -24,10 +18,10 @@ FILE *openFile(string fileName, const char mode[]) {
 }
 
 void copyFile(char source[], char destination[]) {
-    FILE *f1 = fopen(source, "r");
-    FILE *f2 = fopen(destination, "w");
-    char buf[100];
-    while (size_t size = fread(buf, 1, 100, f1)) {
+    FILE *f1 = openFile(source, "r");
+    FILE *f2 = openFile(destination, "w");
+    char buf[1000];
+    while (size_t size = fread(buf, 1, sizeof(buf)/sizeof(buf[0]), f1)) {
         fwrite(buf, 1, size, f2);
     }
     fclose(f1);
@@ -36,57 +30,48 @@ void copyFile(char source[], char destination[]) {
 
 void initialize(char *filename) {
     fp = openFile(filename, "r");
-    /*
-    readNextBuffer();
-    buffer[0][BUFFER_SIZE] = EOF;
-    buffer[1][BUFFER_SIZE] = EOF;
-     */
 }
 
 
-void closeFile() {
+void finalize() {
     fclose(fp);
 }
-/*
-bool readNextBuffer() {
-    currentlyLoadedBufferIndex = (currentlyLoadedBufferIndex + 1) % 2;
-    size_t length = fread(buffer[currentlyLoadedBufferIndex], sizeof(char), BUFFER_SIZE, fp);
-    if (ferror(fp) != 0) {
-        cout << "Error in reading file";
-        return false;
-    } else {
-        buffer[currentlyLoadedBufferIndex][length] = EOF;
-    }
-    return true;
+
+char next() {
+    return fgetc(fp);
 }
-*/
-char getNextChar() {
-    /*
-    currentCharIndex++;
-    if (buffer[currentBufferIndex][currentCharIndex] == EOF) {
-        if (currentCharIndex < BUFFER_SIZE) {
-            return EOF;
+
+char prev() {
+    if(ftell(fp) == 1) {
+        fseek(fp, -1, SEEK_CUR);
+    }
+    else {
+        fseek(fp, -2, SEEK_CUR);
+    }
+    return fgetc(fp);
+}
+
+void shift(int m) {
+    fseek ( fp , m , SEEK_CUR );
+}
+
+void undo(char c) {
+    ungetc(c,fp);
+}
+
+void ab() {
+    cout<<"Position "<<ftell(fp)<<"\n";
+}
+
+
+void skipWhitespaces() {
+    char c;
+    while(c = next()) {
+        if( c == EOF)
+            break;
+        if(!isWhitespace(c)){
+            shift(-1);
+            break;
         }
-        currentBufferIndex = (currentBufferIndex + 1) % 2;
-        currentCharIndex = -1;
-        readNextBuffer();
-        return getNextChar();
     }
-    return buffer[currentBufferIndex][currentCharIndex];
-     */
-    return fgetc(fp);
 }
-
-char getPreviousChar() {
-    /*
-    currentCharIndex--;
-    if (currentCharIndex == -1) {
-        currentCharIndex = BUFFER_SIZE - 1;
-        currentBufferIndex = (currentBufferIndex + 1) % 2;
-    }
-    return buffer[currentBufferIndex][currentCharIndex];
-     */
-    fseek ( fp , -2 , SEEK_CUR );
-    return fgetc(fp);
-}
-

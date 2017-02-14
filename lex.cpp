@@ -6,8 +6,21 @@
 
 using namespace std;
 
-HashMap<SymbolTableRow> symbolTable;
+//HashMap<SymbolTableRow *> symbolTable;
 FILE *fp;
+int filePointerLocation;
+
+
+const vector <std::string> RESERVED_KEYWORDS = {
+        "auto", "break", "case", "char", "const",
+        "continue", "default", "do", "double", "else",
+        "enum", "extern", "float", "for", "goto",
+        "if", "int", "long", "register", "return",
+        "short", "signed", "sizeof", "static", "struct",
+        "switch", "typedef", "union", "unsigned", "void",
+        "volatile", "while"
+};
+
 
 const vector<char> SPECIAL_SYMBOLS = {
         '(', ')', ',', ';', '[', ']', '{', '}', '?', '~', ':'
@@ -64,7 +77,7 @@ Token *readOperator(char c) {
                 else state = 5;
                 break;
             case 2:
-                return Token::makeToken(Type::MEMBER_ACCESS, "->");
+                return Token::makeToken(Type::MEMBER_ACCESS_OPERATOR, "->");
             case 3:
                 return Token::makeToken(Type::ARITH_OPERATOR, "--");
             case 4:
@@ -185,7 +198,7 @@ Token *readNumber(char c) {
             break;
         }
     }
-    return Token::makeToken(Type::NUMBER, num);
+    return Token::makeToken(Type::NUMBER, atoi(num.c_str()));
 }
 
 
@@ -250,19 +263,22 @@ Token *readIdentifier(char c) {
         }
         s.push_back(c);
     }
+    /*
     int id = indexOf(s, RESERVED_KEYWORDS);
     if (id != -1) {
         return Token::makeToken(Type::KEYWORD, s);
     }
 
-    SymbolTableRow row;
-    row.name = s;
+
+    SymbolTableRow *row = new SymbolTableRow;
+    row->name = s;
     id = symbolTable.search(row);
     if (id != -1) {
-        return Token::makeToken(Type::IDENTIFIER, id);
-    }
+       return Token::makeToken(Type::IDENTIFIER, id);
+   }
     id = symbolTable.insert(row);
-    return Token::makeToken(Type::IDENTIFIER, id);
+     */
+    return Token::makeToken(Type::IDENTIFIER, s);
 }
 
 void skipWhitespaces() {
@@ -280,6 +296,8 @@ void skipWhitespaces() {
 
 Token *getNextToken() {
     skipWhitespaces();
+    filePointerLocation = ftell(fp);
+
     char c = next(fp);
     if (c == '\n') {
         return Token::makeToken(Type::NEWLINE);
@@ -311,12 +329,28 @@ Token *getNextToken() {
 
 }
 
+void undoTokenGet() {
+    fseek ( fp , filePointerLocation , SEEK_SET );
+}
+
+void lex_initialize() {
+    char inputFileName[] = "data\\input.txt";
+    char outputFileName[] = "data\\output.txt";
+    preprocess(inputFileName, outputFileName);
+    fp = openFile(outputFileName, "r");
+}
+
+void lex_finalize() {
+    fclose(fp);
+    //copyFile(tempFileName, outputFileName);
+}
+
+/*
 int main() {
     char inputFileName[] = "data\\input.txt";
     char outputFileName[] = "data\\output.txt";
     char tempFileName[] = "data\\temp.txt";
     preprocess(inputFileName, outputFileName);
-
     fp = openFile(outputFileName, "r");
     ofstream output(tempFileName, ios::out);
 
@@ -326,7 +360,7 @@ int main() {
         if (token->type == Type::TEOF) {
             break;
         }
-        output << token->print();
+        output << token->getFormatted();
         delete token;
     }
     output.close();
@@ -339,4 +373,5 @@ int main() {
     return 0;
 
 }
+ */
 

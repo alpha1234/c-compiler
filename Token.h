@@ -1,4 +1,24 @@
 #pragma once
+#include <sstream>
+
+
+enum class Type {
+    KEYWORD,
+    IDENTIFIER,
+    STRING_LITERAL,
+    CHAR_LITERAL,
+    NUMBER,
+    SPECIAL_SYMBOL,
+    REL_OPERATOR,
+    ARITH_OPERATOR,
+    MEMBER_ACCESS_OPERATOR,
+    ASSIGN_OPERATOR,
+    LOGICAL_OPERATOR,
+    BITWISE_OPERATOR,
+    INVALID,
+    NEWLINE,
+    TEOF
+};
 
 struct Token {
     Type type;
@@ -9,53 +29,64 @@ struct Token {
         int number;
     } value;
 
-    std::string print() {
-        std::string output = "<";
+    std::string getString() {
+        if ((type == Type::CHAR_LITERAL) || type == Type::SPECIAL_SYMBOL) {
+            std::string a;
+            a.push_back(value.c);
+            return a;
+        }
+        return std::string(value.s);
+    }
+    char getChar() {
+        return value.c;
+    }
+    std::string getFormatted() {
+        std::ostringstream stream;
+        stream << '<';
         switch (type) {
             case Type::CHAR_LITERAL :
-                output = output + "CHAR_LITERAL," + std::to_string((int)value.c);
+                stream << "CHAR_LITERAL," << value.c;
                 break;
             case Type::SPECIAL_SYMBOL :
-                output = output + "SPECIAL_SYMBOL," + value.c;
+                stream << "SPECIAL_SYMBOL," << value.c;
                 break;
             case Type::IDENTIFIER:
-                output = output + "id," + std::to_string(value.id);
+                stream << "id," << value.s;
                 break;
             case Type::STRING_LITERAL:
-                output = output + "STRING_LITERAL," + value.s;
+                stream << "STRING_LITERAL," << value.s;
                 break;
             case Type::KEYWORD:
-                output = output + "KEYWORD," + value.s;
+                stream << "KEYWORD," << value.s;
                 break;
             case Type::NUMBER:
-                output = output + "num," + value.s;
+                stream << "num," << value.number;
                 break;
             case Type::REL_OPERATOR:
-                output = output + "REL_OPERATOR," + value.s;
+                stream << "REL_OPERATOR," << value.s;
                 break;
             case Type::ARITH_OPERATOR:
-                output = output + "ARITH_OPERATOR," + value.s;
+                stream << "ARITH_OPERATOR," << value.s;
                 break;
-            case Type::MEMBER_ACCESS:
-                output = output + "MEMBER_ACCESS," + value.s;
+            case Type::MEMBER_ACCESS_OPERATOR:
+                stream << "MEMBER_ACCESS," << value.s;
                 break;
             case Type::ASSIGN_OPERATOR:
-                output = output + "ASSIGN_OPERATOR," + value.s;
+                stream << "ASSIGN_OPERATOR," << value.s;
                 break;
             case Type::LOGICAL_OPERATOR:
-                output = output + "LOGICAL_OPERATOR," + value.s;
+                stream << "LOGICAL_OPERATOR," << value.s;
                 break;
             case Type::BITWISE_OPERATOR:
-                output = output + "BITWISE_OPERATOR," + value.s;
+                stream << "BITWISE_OPERATOR," << value.s;
                 break;
             case Type::NEWLINE:
                 return "\n";
             case Type::INVALID:
-                output = output + "INVALID," + value.c;
+                stream << "INVALID," << value.c;
         }
-        output += '>';
-        return output;
-
+        stream << '>';
+        return stream.str();
     }
 
     static struct Token *makeToken(Type type) {
@@ -64,25 +95,30 @@ struct Token {
         return t;
     }
 
-    static struct Token *makeToken(Type type, std::string s1) {
+    static struct Token *makeToken(Type type, std::string s) {
         Token *t = new Token;
         t->type = type;
-        t->value.s = new char[s1.size()];   //TODO Possible Memory leak on destruction of Token
-        strcpy(t->value.s, const_cast<char *>(s1.c_str()));
+        t->value.s = new char[s.size()];   //TODO Possible Memory leak on destruction of Token
+        strcpy(t->value.s, const_cast<char *>(s.c_str()));
         return t;
     }
 
-    static struct Token *makeToken(Type type, int id1) {
+    static struct Token *makeToken(Type type, int value) {
         Token *t = new Token;
         t->type = type;
-        t->value.id = id1;
+        if(type == Type::IDENTIFIER) {
+            t->value.id = value;
+        }
+        else if(type == Type::NUMBER) {
+            t->value.number = value;
+        }
         return t;
     }
 
-    static struct Token *makeToken(Type type, char c1) {
+    static struct Token *makeToken(Type type, char c) {
         Token *t = new Token;
         t->type = type;
-        t->value.c = c1;
+        t->value.c = c;
         return t;
     }
 };

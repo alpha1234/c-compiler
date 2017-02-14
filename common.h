@@ -14,6 +14,8 @@ void shift(FILE *, int);
 
 void ab(FILE *);
 
+char peek(FILE *,int);
+
 void preprocess(char *, char *);
 
 

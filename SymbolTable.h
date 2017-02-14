@@ -15,6 +15,11 @@ std::ostream &operator<<(std::ostream &o, const SymbolTableRow &a) {
     return o << a.name;
 }
 
+std::ostream &operator<<(std::ostream &o, const SymbolTableRow *a) {
+    return o << a->name;
+}
+
+
 bool operator==(const SymbolTableRow &a, const SymbolTableRow &b) {
     return (a.name == b.name);
 }

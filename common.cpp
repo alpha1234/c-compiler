@@ -45,6 +45,13 @@ void undo(FILE *fp, char c) {
     ungetc(c, fp);
 }
 
+char peek(FILE *fp,int m) {
+    shift(fp,m-1);
+    char c = next(fp);
+    shift(fp,-m );
+    return c;
+}
+
 void ab(FILE *fp) {
     cout << "Position " << ftell(fp) << "\n";
 }
@@ -53,7 +60,7 @@ void ab(FILE *fp) {
 void preprocess(char inputFileName[], char outputFileName[]) {
     FILE *input = openFile(inputFileName, "r");
     FILE *output = openFile(outputFileName, "w");
-    char c;
+    char c,d;
     bool isPreviousNonSpaceNewline = true;
     while ((c = next(input)) != EOF) {
         if (c == '"') {
@@ -64,32 +71,42 @@ void preprocess(char inputFileName[], char outputFileName[]) {
             fputc('"', output);
             continue;
         }
-        if (c == '#' && isPreviousNonSpaceNewline) {
-            while ((c = next(input)) != '\n');
-            isPreviousNonSpaceNewline = true;
-        }
-        if (isWhitespace(c)) {
-            isPreviousNonSpaceNewline = true;
-        } else {
+        if(isPreviousNonSpaceNewline && !isWhitespace(c)) {
             isPreviousNonSpaceNewline = false;
         }
+        if (c == '#') {
+            while (1) {
+                c = next(input);
+                if(c == '\n' || c == EOF) {
+                    isPreviousNonSpaceNewline = true;
+                    break;
+                }
+            }
+            continue;
+        }
         if (c == '/') {
-            c = next(input);
-            if (c == '*') {
-                while ((c = next(input)) != EOF) {
-                    if (c == '\n') {
-                        fputc(c, output);
-                    } else if (c == '*' && next(input) == '/') {
+            d = peek(input,1);
+            if (d == '*') {
+                while ((d = next(input)) != EOF) {
+                    if (d == '\n') {
+                        fputc('\n', output);
+                    } else if (d == '*' && next(input) == '/') {
                         break;
                     }
                 }
                 continue;
-            } else if (c == '/') {
-                while (next(input) != '\n');
+            } else if (d == '/') {
+                while (1) {
+                    d = next(input);
+                    if(d == '\n' || d == EOF) {
+                        isPreviousNonSpaceNewline = true;
+
+                        break;
+                    }
+                }
                 fputc('\n', output);
                 continue;
             }
-            fputc('/', output);
         }
         fputc(c, output);
     }

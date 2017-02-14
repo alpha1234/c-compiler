@@ -69,7 +69,7 @@ public:
         return -1;
     }
 
-    int insert(V value) {
+    int insert(V &value) {
         int key = ++lastInsertKey;
         int hashValue = hashFunc(key);
         Node<V> *prev = NULL;

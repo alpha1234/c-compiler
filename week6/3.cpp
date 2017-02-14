@@ -4,74 +4,68 @@
 
 using namespace std;
 
-bool E();
-bool E1();
-bool T();
-bool T1();
-bool F();
+bool S();
+bool A();
+bool A1();
+bool B();
 
-Token *token;
-bool E() {
-    if(T()) {
-        return E1();
-    }
-    undoTokenGet();
-    return false;
-}
+string buffer;
+int i = -1;
 
-bool E1() {
-    token = getNextToken();
-    if(token->getString() == "+") {
-        if(T()) {
-            return E1();
-        }
-    }
-    undoTokenGet();
-    return true;
-}
-bool T() {
-    if(F()) {
-        return T1();
-    }
-    cout<<token->getFormatted();
-
-    return false;
-}
-bool T1() {
-    token = getNextToken();
-    if(token->getString() == "*") {
-        if(F()) {
-            return T1();
-        }
-    }
-    undoTokenGet();
-    return true;
-}
-
-bool F() {
-    token = getNextToken();
-    if (token->getString() == "(") {
-        if (E()) {
-            token = getNextToken();
-            if (token->getString() == ")") {
-                return true;
+bool S() {
+    cout << "Inside S \n";
+    i++;
+    if (buffer[i] == 'a') {
+        if (A()) {
+            i++;
+            if (buffer[i] == 'c') {
+                if (B()) {
+                    i++;
+                    if (buffer[i] == 'e') {
+                        return true;
+                    }
+                }
             }
         }
     } else {
-        return token->type == Type::IDENTIFIER;
+        i--;
     }
-
     return false;
+}
 
+bool A() {
+    cout << "Inside A \n";
+    i++;
+    if (buffer[i] == 'b') {
+        return A1();
+    }
+    i--;
+    return true;
+}
+bool A1() {
+    cout << "Inside A1 \n";
+    i++;
+    if (buffer[i] == 'b') {
+        return A1();
+    }
+    i--;
+    return true;
+}
+bool B() {
+    cout << "Inside B \n";
+    i++;
+    if(buffer[i] == 'd') {
+        return true;
+    }
+    return false;
 }
 
 
 int main() {
-
-    lex_initialize();
-    if(E()) {
-        token = getNextToken();
-        if(token->type == Type::TEOF) {
+    buffer = "abcde$";
+    if(S()) {
+        i++;
+        if(buffer[i] == '$') {
             cout << "Success";
         }
         else {
@@ -82,6 +76,5 @@ int main() {
         cout<<"Error";
     }
 
-    lex_finalize();
     return 0;
 }

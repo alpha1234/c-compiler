@@ -12,6 +12,8 @@ bool F();
 
 Token *token;
 bool E() {
+    cout << "Inside E \n";
+
     if(T()) {
         return E1();
     }
@@ -20,6 +22,8 @@ bool E() {
 }
 
 bool E1() {
+    cout << "Inside E1 \n";
+
     token = getNextToken();
     if(token->getString() == "+") {
         if(T()) {
@@ -30,6 +34,8 @@ bool E1() {
     return true;
 }
 bool T() {
+    cout << "Inside T \n";
+
     if(F()) {
         return T1();
     }
@@ -38,6 +44,8 @@ bool T() {
     return false;
 }
 bool T1() {
+    cout << "Inside T1 \n";
+
     token = getNextToken();
     if(token->getString() == "*") {
         if(F()) {
@@ -49,6 +57,8 @@ bool T1() {
 }
 
 bool F() {
+    cout << "Inside F \n";
+
     token = getNextToken();
     if (token->getString() == "(") {
         if (E()) {

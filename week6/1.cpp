@@ -10,6 +10,7 @@ bool T1();
 
 Token *token;
 bool S() {
+    cout << "Inside S \n";
     token = getNextToken();
     if(token->getString() == "a") {
         return true;
@@ -30,6 +31,8 @@ bool S() {
 }
 
 bool T() {
+    cout << "Inside T \n";
+
     if(S()) {
         return T1();
     }
@@ -37,6 +40,8 @@ bool T() {
 }
 
 bool T1() {
+    cout << "Inside T1 \n";
+
     token = getNextToken();
     if(token->getChar() == ',') {
         if(S()) {

@@ -11,16 +11,16 @@ struct production {
 };
 typedef struct production Production;
 
-vector<Production> grammar;
-
-void printGrammar() {
+void printGrammar(vector<Production>& grammar) {
         for(int i = 0;i<grammar.size();i++) {
-            cout<<grammar[i].lhs<< "->";
+            cout<<grammar[i].lhs<< " -> ";
             for(int j = 0;j<grammar[i].rhs.size();j++) {
                 for(int k = 0;k<grammar[i].rhs[j].size();k++) {
                     cout<<grammar[i].rhs[j][k];
                 }
-                cout<<"|";
+                if(j != grammar[i].rhs.size() - 1) {
+                    cout << " | ";
+                }
             }
             cout<<"\n";
     }
@@ -35,68 +35,81 @@ int isLeftRecursion(Production production) {
     }
     return -1;
 }
-void removeLeftRecursion(int productionIndex,int ruleIndex) {
+void removeLeftRecursion(vector<Production>& grammar,int productionIndex,int ruleIndex) {
     Production temp;
+    Production prodWithRecursion = grammar[productionIndex];
+    grammar.erase(grammar.begin() + productionIndex);
+
     vector<string> tempRule;
-    for(int i = 0;i<grammar[productionIndex].rhs.size();i++) {
-        if(i == ruleIndex) {
-                continue;
-        }
-        tempRule = grammar[productionIndex].rhs[i];
-        tempRule.push_back(grammar[productionIndex].lhs + "1");
+
+    for(auto &item: prodWithRecursion.rhs) {
+        auto i = &item - &prodWithRecursion.rhs[0];
+         if(i == ruleIndex) {
+             continue;
+         }
+        tempRule = item;
+        tempRule.push_back(prodWithRecursion.lhs + "1");
         temp.rhs.push_back(tempRule);
     }
-    temp.lhs = grammar[productionIndex].lhs;
+    temp.lhs = prodWithRecursion.lhs;
     grammar.push_back(temp);
 
-    Production temp1;
-    tempRule = grammar[productionIndex].rhs[ruleIndex];
+  //  Production temp1;
+    temp = {};
+
     tempRule.erase(tempRule.begin());
-    tempRule.push_back(grammar[productionIndex].lhs + "1");
-    temp1.rhs.push_back(tempRule);
-    temp1.lhs = grammar[productionIndex].lhs + "1";
+    tempRule.push_back(prodWithRecursion.lhs + "1");
+    temp.rhs.push_back(tempRule);
+    temp.rhs.push_back({"e"});
+    temp.lhs = prodWithRecursion.lhs + "1";
     grammar.push_back(temp1);
 
 
-    grammar.erase(grammar.begin() + productionIndex);
+    //grammar.erase(grammar.begin() + productionIndex);
 
 
 }
 
 int main() {
 
-    Production p1 = {"E",{
-        {"E","+","T"},
-        {"T"}
-    }};
+    vector <Production> grammar =
+            {
+                    {"E", {
+                                  {"E", "+", "T"},
+                                  {"T"},
+                                  {"SS"}
+                          }
+                    },
+                    {
+                     "T", {
+                                  {"T", "*", "F"},
+                                  {"F"}
+                          }
+                    },
+                    {
+                     "F", {
+                                  {"(", "E", ")"},
+                                  {"id"}
+                          }
+                    }
+            };
 
-    Production p2 = {"T",{
-        {"T","*","F"},
-        {"F"}
-    }};
+    //   grammar.push_back(p1);
+    //   grammar.push_back(p2);
+    //   grammar.push_back(p3);
 
-    Production p3 = {"F",{
-        {"(","E",")"},
-        {"id"}
-    }};
-
-    grammar.push_back(p1);
-    grammar.push_back(p2);
-    grammar.push_back(p3);
-
-
-vector<vector<int>> ruleIndexes;
-for(int i  =0;i<grammar.size();i++) {
-    ruleIndex = -1;
-    ruleIndex = isLeftRecursion(grammar[i]);
-    if(ruleIndex != -1) {
-        ruleIndexes.push_back()
-        cout<<ruleIndex<<"\n";
-        removeLeftRecursion(i,ruleIndex);
-
+    int temp;
+    vector <vector<int>> rulesWithRecursion;
+    for (int i = 0; i < grammar.size(); i++) {
+        temp = isLeftRecursion(grammar[i]);
+        if (temp != -1) {
+            rulesWithRecursion.push_back({i, temp});
+        }
     }
-}
+    for (auto &item: rulesWithRecursion) {
+        removeLeftRecursion(grammar, item[0], item[1]);
+    }
 
-printGrammar();
+    printGrammar(grammar);
     return 0;
 }

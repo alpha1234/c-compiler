@@ -2,6 +2,6 @@
 
 
 Token *getNextToken();
-void lex_initialize();
+void lex_initialize(char *,char *);
 void lex_finalize();
 void undoTokenGet();

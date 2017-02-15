@@ -1,15 +1,13 @@
-#include "compiler.h"
-#include "common.h"
-#include "HashTable.h"
-#include "Token.h"
-#include "SymbolTable.h"
+#include "../compiler/compiler.h"
+#include "../compiler/common.h"
+#include "../compiler/HashTable.h"
+#include "../compiler/Token.h"
+#include "../compiler/SymbolTable.h"
 
 using namespace std;
 
-//HashMap<SymbolTableRow *> symbolTable;
+HashMap<SymbolTableRow *> symbolTable;
 FILE *fp;
-int filePointerLocation;
-
 
 const vector <std::string> RESERVED_KEYWORDS = {
         "auto", "break", "case", "char", "const",
@@ -263,7 +261,7 @@ Token *readIdentifier(char c) {
         }
         s.push_back(c);
     }
-    /*
+    
     int id = indexOf(s, RESERVED_KEYWORDS);
     if (id != -1) {
         return Token::makeToken(Type::KEYWORD, s);
@@ -276,8 +274,55 @@ Token *readIdentifier(char c) {
     if (id != -1) {
        return Token::makeToken(Type::IDENTIFIER, id);
    }
+   /*
+    skipWhitespaces();
+    c = peek(fp,-1);
+    if(c == '(') {
+        row.type = "FUNC";
+        row.returnType = lexemes.back().s;
+        row.size = -1;
+        int count = 0;
+        string parameters;
+        getNextChar();
+        count++;
+        while(1) {
+            c = getNextChar();
+            count++;
+            if(c == ')') {
+                break;
+            }
+            parameters.push_back(c);
+        }
+        while(count--) {
+            getPreviousChar();
+        }
+        row.arguments = parameters;
+        count = 0;
+        if(parameters.size() > 0) {
+            count++;
+        }
+        for(int i = 0;i<parameters.size();i++) {
+            if(parameters[i] == ',') {
+                count++;
+            }
+        }
+        row.noOfArguments = count;
+    }
+    else {
+        row.noOfArguments = -1;
+        row.arguments = "";
+        row.returnType = "\t";
+        row.type = lexemes.back().s;
+        if(row.type == "int") row.size = sizeof(int);
+        else if(row.type == "char") row.size = sizeof(char);
+        else if(row.type == "double") row.size = sizeof(double);
+        else if(row.type == "float") row.size = sizeof(float);
+        else if(row.type == "string") row.size = sizeof(string);
+    }
+
+*/
     id = symbolTable.insert(row);
-     */
+     
     return Token::makeToken(Type::IDENTIFIER, s);
 }
 
@@ -296,7 +341,6 @@ void skipWhitespaces() {
 
 Token *getNextToken() {
     skipWhitespaces();
-    filePointerLocation = ftell(fp);
 
     char c = next(fp);
     if (c == '\n') {
@@ -329,27 +373,12 @@ Token *getNextToken() {
 
 }
 
-void undoTokenGet() {
-    fseek ( fp , filePointerLocation , SEEK_SET );
-}
 
-void lex_initialize() {
-    char inputFileName[] = "data\\input.txt";
-    char outputFileName[] = "data\\output.txt";
-    preprocess(inputFileName, outputFileName);
-    fp = openFile(outputFileName, "r");
-}
 
-void lex_finalize() {
-    fclose(fp);
-    //copyFile(tempFileName, outputFileName);
-}
-
-/*
 int main() {
-    char inputFileName[] = "data\\input.txt";
-    char outputFileName[] = "data\\output.txt";
-    char tempFileName[] = "data\\temp.txt";
+    char inputFileName[] = "input.txt";
+    char outputFileName[] = "output.txt";
+    char tempFileName[] = "temp.txt";
     preprocess(inputFileName, outputFileName);
     fp = openFile(outputFileName, "r");
     ofstream output(tempFileName, ios::out);
@@ -373,5 +402,5 @@ int main() {
     return 0;
 
 }
- */
+
 

@@ -1,6 +1,6 @@
-#include "../compiler.h"
-#include "../Token.h"
-#include "../lex.h"
+#include "../compiler/compiler.h"
+#include "../compiler/Token.h"
+#include "../compiler/lex.h"
 
 using namespace std;
 
@@ -57,8 +57,9 @@ bool T1() {
 
 
 int main() {
-
-    lex_initialize();
+  char inputFileName[] = "input.txt";
+    char outputFileName[] = "output.txt";
+    lex_initialize(inputFileName,outputFileName);
     if(S()) {
         token = getNextToken();
         if(token->type == Type::TEOF) {

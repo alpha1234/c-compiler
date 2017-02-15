@@ -1,0 +1,2 @@
+<KEYWORD,int><id,a><SPECIAL_SYMBOL,;>
+<KEYWORD,char><id,a><SPECIAL_SYMBOL,;>

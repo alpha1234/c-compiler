@@ -1,6 +1,6 @@
-#include "../compiler.h"
-#include "../Token.h"
-#include "../lex.h"
+#include "../compiler/compiler.h"
+#include "../compiler/Token.h"
+#include "../compiler/lex.h"
 
 using namespace std;
 

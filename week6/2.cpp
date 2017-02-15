@@ -1,6 +1,6 @@
-#include "../compiler.h"
-#include "../Token.h"
-#include "../lex.h"
+#include "../compiler/compiler.h"
+#include "../compiler/Token.h"
+#include "../compiler/lex.h"
 
 using namespace std;
 
@@ -39,8 +39,6 @@ bool T() {
     if(F()) {
         return T1();
     }
-    cout<<token->getFormatted();
-
     return false;
 }
 bool T1() {
@@ -78,8 +76,10 @@ bool F() {
 
 int main() {
 
-    lex_initialize();
-    if(E()) {
+ char inputFileName[] = "input.txt";
+    char outputFileName[] = "output.txt";
+    lex_initialize(inputFileName,outputFileName);
+        if(E()) {
         token = getNextToken();
         if(token->type == Type::TEOF) {
             cout << "Success";

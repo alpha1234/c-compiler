@@ -66,7 +66,7 @@ bool F() {
             }
         }
     } else {
-        return token->type == Type::IDENTIFIER;
+        return token->type == IDENTIFIER;
     }
 
     return false;
@@ -81,7 +81,7 @@ int main() {
     lex_initialize(inputFileName,outputFileName);
         if(E()) {
         token = getNextToken();
-        if(token->type == Type::TEOF) {
+        if(token->type == TEOF) {
             cout << "Success";
         }
         else {

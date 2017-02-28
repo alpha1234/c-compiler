@@ -4,7 +4,7 @@
 
 using namespace std;
 
-FILE *fp;
+FILE *fp,*tokensOutput;
 int filePointerLocation;
 
 
@@ -24,87 +24,95 @@ Token *readOperator(char c) {
     switch (c) {
         case '-':
             c = next(fp);
-            if (c == '>') return Token::makeToken(Type::DEREF);
-            else if (c == '-') return Token::makeToken(Type::MINUS_MINUS);
-            else if (c == '=') return Token::makeToken(Type::MINUS_EQ);
+            if (c == '>') return Token::makeToken(DEREF);
+            else if (c == '-') return Token::makeToken(MINUS_MINUS);
+            else if (c == '=') return Token::makeToken(MINUS_EQ);
             else {
                 shift(fp, -1);
-                return Token::makeToken(Type::MINUS);
+                return Token::makeToken(MINUS);
             }
         case '+':
             c = next(fp);
-            if (c == '+') return Token::makeToken(Type::PLUS_PLUS);
-            else if (c == '=') return Token::makeToken(Type::PLUS_EQ);
+            if (c == '+') return Token::makeToken(PLUS_PLUS);
+            else if (c == '=') return Token::makeToken(PLUS_EQ);
             else {
                 shift(fp, -1);
-                return Token::makeToken(Type::PLUS);
+                return Token::makeToken(PLUS);
             }
         case '!':
             c = next(fp);
-            if (c == '=') return Token::makeToken(Type::NOT_EQ);
+            if (c == '=') return Token::makeToken(NOT_EQ);
             else {
                 shift(fp, -1);
-                return Token::makeToken(Type::NOT);
+                return Token::makeToken(NOT);
             }
         case '~':
-            return Token::makeToken(Type::COMPL);
+            return Token::makeToken(COMPL);
 
         case '/':
             c = next(fp);
-            if (c == '=') return Token::makeToken(Type::DIV_EQ);
+            if (c == '=') return Token::makeToken(DIV_EQ);
 
             else {
                 shift(fp, -1);
-                return Token::makeToken(Type::DIV);
+                return Token::makeToken(DIV);
+            }
+        case '*':
+            c = next(fp);
+            if (c == '=') return Token::makeToken(MULT_EQ);
+
+            else {
+                shift(fp, -1);
+                return Token::makeToken(MULT);
             }
         case '%':
             c = next(fp);
-            if (c == '=') return Token::makeToken(Type::MOD_EQ);
+            if (c == '=') return Token::makeToken(MOD_EQ);
 
             else {
                 shift(fp, -1);
-                return Token::makeToken(Type::MOD);
+                return Token::makeToken(MOD);
             }
         case '<':
             c = next(fp);
             if (c == '<') {
                 c = next(fp);
-                if (c == '=') return Token::makeToken(Type::LSHIFT_EQ);
+                if (c == '=') return Token::makeToken(LSHIFT_EQ);
 
                 else {
                     shift(fp, -1);
-                    return Token::makeToken(Type::LSHIFT);
+                    return Token::makeToken(LSHIFT);
                 }
-            } else if (c == '=') return Token::makeToken(Type::LESS_EQ);
+            } else if (c == '=') return Token::makeToken(LESS_EQ);
 
             else {
                 shift(fp, -1);
-                return Token::makeToken(Type::LESS);
+                return Token::makeToken(LESS);
             }
 
         case '>':
             c = next(fp);
             if (c == '>') {
                 c = next(fp);
-                if (c == '=') return Token::makeToken(Type::RSHIFT_EQ);
+                if (c == '=') return Token::makeToken(RSHIFT_EQ);
 
                 else {
                     shift(fp, -1);
-                    return Token::makeToken(Type::RSHIFT);
+                    return Token::makeToken(RSHIFT);
                 }
-            } else if (c == '=') return Token::makeToken(Type::GREATER_EQ);
+            } else if (c == '=') return Token::makeToken(GREATER_EQ);
 
             else {
                 shift(fp, -1);
-                return Token::makeToken(Type::GREATER);
+                return Token::makeToken(GREATER);
             }
         case '=':
             c = next(fp);
-            if (c == '=') return Token::makeToken(Type::EQ_EQ);
+            if (c == '=') return Token::makeToken(EQ_EQ);
 
             else {
                 shift(fp, -1);
-                return Token::makeToken(Type::EQ);
+                return Token::makeToken(EQ);
             }
     }
 }
@@ -136,14 +144,14 @@ Token *readOperator(char c) {
                 else state = 5;
                 break;
             case 2:
-                return Token::makeToken(Type::MEMBER_ACCESS_OPERATOR, "->");
+                return Token::makeToken(MEMBER_ACCESS_OPERATOR, "->");
             case 3:
-                return Token::makeToken(Type::ARITH_OPERATOR, "--");
+                return Token::makeToken(ARITH_OPERATOR, "--");
             case 4:
-                return Token::makeToken(Type::ASSIGN_OPERATOR, "-=");
+                return Token::makeToken(ASSIGN_OPERATOR, "-=");
             case 5:
                 shift(fp, -1);
-                return Token::makeToken(Type::ARITH_OPERATOR, "-");
+                return Token::makeToken(ARITH_OPERATOR, "-");
             case 6:
                 c = next(fp);
                 if (c == '+') state = 7;
@@ -151,44 +159,44 @@ Token *readOperator(char c) {
                 else state = 9;
                 break;
             case 7:
-                return Token::makeToken(Type::ARITH_OPERATOR, "++");
+                return Token::makeToken(ARITH_OPERATOR, "++");
             case 8:
-                return Token::makeToken(Type::ASSIGN_OPERATOR,"+=");
+                return Token::makeToken(ASSIGN_OPERATOR,"+=");
             case 9:
                 shift(fp, -1);
-                return Token::makeToken(Type::ARITH_OPERATOR, "+");
+                return Token::makeToken(ARITH_OPERATOR, "+");
             case 10:
                 c = next(fp);
                 if(c == '=') state = 11;
                 else state = 12;
                 break;
             case 11:
-                return Token::makeToken(Type::REL_OPERATOR, "!=");
+                return Token::makeToken(REL_OPERATOR, "!=");
             case 12:
                 shift(fp, -1);
-                return Token::makeToken(Type::LOGICAL_OPERATOR, "!");
+                return Token::makeToken(LOGICAL_OPERATOR, "!");
             case 13:
-                return Token::makeToken(Type::BITWISE_OPERATOR, "~");
+                return Token::makeToken(BITWISE_OPERATOR, "~");
             case 14:
                 c = next(fp);
                 if(c == '=') state = 15;
                 else state = 16;
                 break;
             case 15:
-                return Token::makeToken(Type::ASSIGN_OPERATOR, "/=");
+                return Token::makeToken(ASSIGN_OPERATOR, "/=");
             case 16:
                 shift(fp, -1);
-                return Token::makeToken(Type::ARITH_OPERATOR, "/");
+                return Token::makeToken(ARITH_OPERATOR, "/");
             case 17:
                 c = next(fp);
                 if(c == '=') state = 18;
                 else state = 19;
                 break;
             case 18:
-                return Token::makeToken(Type::ASSIGN_OPERATOR, "%");
+                return Token::makeToken(ASSIGN_OPERATOR, "%");
             case 19:
                 shift(fp, -1);
-                return Token::makeToken(Type::ARITH_OPERATOR, "%");
+                return Token::makeToken(ARITH_OPERATOR, "%");
             case 20:
                 c = next(fp);
                 if (c == '<') state = 21;
@@ -201,15 +209,15 @@ Token *readOperator(char c) {
                 else state = 23;
                 break;
             case 22:
-                return Token::makeToken(Type::ASSIGN_OPERATOR, "<<=");
+                return Token::makeToken(ASSIGN_OPERATOR, "<<=");
             case 23:
                 shift(fp,-1);
-                return Token::makeToken(Type::BITWISE_OPERATOR, "<<");
+                return Token::makeToken(BITWISE_OPERATOR, "<<");
             case 24:
-                return Token::makeToken(Type::REL_OPERATOR, "<=");
+                return Token::makeToken(REL_OPERATOR, "<=");
             case 25:
                 shift(fp,-1);
-                return Token::makeToken(Type::REL_OPERATOR, "<");
+                return Token::makeToken(REL_OPERATOR, "<");
             case 26:
                 c = next(fp);
                 if (c == '>') state = 27;
@@ -222,25 +230,25 @@ Token *readOperator(char c) {
                 else state = 29;
                 break;
             case 28:
-                return Token::makeToken(Type::ASSIGN_OPERATOR, ">>=");
+                return Token::makeToken(ASSIGN_OPERATOR, ">>=");
             case 29:
                 shift(fp,-1);
-                return Token::makeToken(Type::BITWISE_OPERATOR, ">>");
+                return Token::makeToken(BITWISE_OPERATOR, ">>");
             case 30:
-                return Token::makeToken(Type::REL_OPERATOR, ">=");
+                return Token::makeToken(REL_OPERATOR, ">=");
             case 31:
                 shift(fp,-1);
-                return Token::makeToken(Type::REL_OPERATOR, ">");
+                return Token::makeToken(REL_OPERATOR, ">");
             case 32:
                 c = next(fp);
                 if (c == '=') state = 33;
                 else state = 34;
                 break;
             case 33:
-                return Token::makeToken(Type::REL_OPERATOR, "==");
+                return Token::makeToken(REL_OPERATOR, "==");
             case 34:
                 shift(fp,-1);
-                return Token::makeToken(Type::ASSIGN_OPERATOR, "=");
+                return Token::makeToken(ASSIGN_OPERATOR, "=");
         }
     }
 }
@@ -253,11 +261,11 @@ Token *readNumber(char c) {
         if (c >= '0' && c <= '9') {
             num.push_back(c);
         } else {
-            move(-1);
+            shift(fp,-1);
             break;
         }
     }
-    return Token::makeToken(Type::NUMBER, atoi(num.c_str()));
+    return Token::makeToken(NUMBER, atoi(num.c_str()));
 }
 
 
@@ -272,7 +280,7 @@ Token *readStringLiteral() {
         s.push_back(c);
         c = next(fp);
     }
-    return Token::makeToken(Type::STRING, s);
+    return Token::makeToken(STRING, s);
 }
 
 char readEscapedChar() {
@@ -304,7 +312,7 @@ Token *readChar() {
         c = readEscapedChar();
     }
     next(fp);
-    return Token::makeToken(Type::CHAR, c);
+    return Token::makeToken(CHAR, c);
 }
 
 
@@ -324,9 +332,9 @@ Token *readIdentifier(char c) {
     }
     int index = distance( RESERVED_KEYWORDS.begin(), find(RESERVED_KEYWORDS.begin(), RESERVED_KEYWORDS.end(), s));
     if(index < RESERVED_KEYWORDS.size())
-        return Token::makeToken(static_cast<Type>(index));
+        return Token::makeToken(index,s);
 
-    return Token::makeToken(Type::IDENTIFIER, s);
+    return Token::makeToken(IDENTIFIER, s);
 }
 
 void skipWhitespaces() {
@@ -342,7 +350,8 @@ void skipWhitespaces() {
 }
 
 
-Token *getNextToken() {
+
+Token *temp() {
     skipWhitespaces();
     filePointerLocation = ftell(fp);
 
@@ -357,6 +366,7 @@ Token *getNextToken() {
         case '<':
         case '>':
         case '=':
+        case '*':
             return readOperator(c);
         case '0' ... '9':
             return readNumber(c);
@@ -371,28 +381,33 @@ Token *getNextToken() {
             return readIdentifier(c);
 
         case ',':
-            return Token::makeToken(Type::COMMA);
+            return Token::makeToken(COMMA);
         case '(':
-            return Token::makeToken(Type::OPEN_PAREN);
+            return Token::makeToken(OPEN_PAREN);
         case ')':
-            return Token::makeToken(Type::CLOSE_PAREN);
+            return Token::makeToken(CLOSE_PAREN);
         case '[':
-            return Token::makeToken(Type::OPEN_SQUARE);
+            return Token::makeToken(OPEN_SQUARE);
         case ']':
-            return Token::makeToken(Type::CLOSE_SQUARE);
+            return Token::makeToken(CLOSE_SQUARE);
         case '{':
-            return Token::makeToken(Type::OPEN_BRACE);
+            return Token::makeToken(OPEN_BRACE);
         case '}':
-            return Token::makeToken(Type::CLOSE_BRACE);
+            return Token::makeToken(CLOSE_BRACE);
         case ';':
-            return Token::makeToken(Type::SEMICOLON);
+            return Token::makeToken(SEMICOLON);
 
         case EOF:
-            return Token::makeToken(Type::TEOF);
+            return Token::makeToken(TEOF);
     }
-    return Token::makeToken(Type::INVALID, c);
+    return Token::makeToken(INVALID, c);
+}
 
-
+Token * getNextToken() {
+    Token *t = temp();
+    fputs(t->getFormatted().c_str(), tokensOutput);
+    fputc('\n',tokensOutput);
+    return t;
 }
 
 void undoTokenGet() {
@@ -403,6 +418,8 @@ void lex_initialize(char *inputFileName) {
     char outputFileName[] = "temp.txt";
     preprocess(inputFileName, outputFileName);
     fp = openFile(outputFileName, "r");
+    tokensOutput = openFile("tokens.txt", "w");
+
 }
 
 void lex_finalize() {

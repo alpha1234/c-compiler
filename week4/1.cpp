@@ -75,14 +75,14 @@ Token *readOperator(char c) {
                 else state = 5;
                 break;
             case 2:
-                return Token::makeToken(Type::MEMBER_ACCESS_OPERATOR, "->");
+                return Token::makeToken(MEMBER_ACCESS_OPERATOR, "->");
             case 3:
-                return Token::makeToken(Type::ARITH_OPERATOR, "--");
+                return Token::makeToken(ARITH_OPERATOR, "--");
             case 4:
-                return Token::makeToken(Type::ASSIGN_OPERATOR, "-=");
+                return Token::makeToken(ASSIGN_OPERATOR, "-=");
             case 5:
                 shift(fp, -1);
-                return Token::makeToken(Type::ARITH_OPERATOR, "-");
+                return Token::makeToken(ARITH_OPERATOR, "-");
             case 6:
                 c = next(fp);
                 if (c == '+') state = 7;
@@ -90,44 +90,44 @@ Token *readOperator(char c) {
                 else state = 9;
                 break;
             case 7:
-                return Token::makeToken(Type::ARITH_OPERATOR, "++");
+                return Token::makeToken(ARITH_OPERATOR, "++");
             case 8:
-                return Token::makeToken(Type::ASSIGN_OPERATOR,"+=");
+                return Token::makeToken(ASSIGN_OPERATOR,"+=");
             case 9:
                 shift(fp, -1);
-                return Token::makeToken(Type::ARITH_OPERATOR, "+");
+                return Token::makeToken(ARITH_OPERATOR, "+");
             case 10:
                 c = next(fp);
                 if(c == '=') state = 11;
                 else state = 12;
                 break;
             case 11:
-                return Token::makeToken(Type::REL_OPERATOR, "!=");
+                return Token::makeToken(REL_OPERATOR, "!=");
             case 12:
                 shift(fp, -1);
-                return Token::makeToken(Type::LOGICAL_OPERATOR, "!");
+                return Token::makeToken(LOGICAL_OPERATOR, "!");
             case 13:
-                return Token::makeToken(Type::BITWISE_OPERATOR, "~");
+                return Token::makeToken(BITWISE_OPERATOR, "~");
             case 14:
                 c = next(fp);
                 if(c == '=') state = 15;
                 else state = 16;
                 break;
             case 15:
-                return Token::makeToken(Type::ASSIGN_OPERATOR, "/=");
+                return Token::makeToken(ASSIGN_OPERATOR, "/=");
             case 16:
                 shift(fp, -1);
-                return Token::makeToken(Type::ARITH_OPERATOR, "/");
+                return Token::makeToken(ARITH_OPERATOR, "/");
             case 17:
                 c = next(fp);
                 if(c == '=') state = 18;
                 else state = 19;
                 break;
             case 18:
-                return Token::makeToken(Type::ASSIGN_OPERATOR, "%");
+                return Token::makeToken(ASSIGN_OPERATOR, "%");
             case 19:
                 shift(fp, -1);
-                return Token::makeToken(Type::ARITH_OPERATOR, "%");
+                return Token::makeToken(ARITH_OPERATOR, "%");
             case 20:
                 c = next(fp);
                 if (c == '<') state = 21;
@@ -140,15 +140,15 @@ Token *readOperator(char c) {
                 else state = 23;
                 break;
             case 22:
-                return Token::makeToken(Type::ASSIGN_OPERATOR, "<<=");
+                return Token::makeToken(ASSIGN_OPERATOR, "<<=");
             case 23:
                 shift(fp,-1);
-                return Token::makeToken(Type::BITWISE_OPERATOR, "<<");
+                return Token::makeToken(BITWISE_OPERATOR, "<<");
             case 24:
-                return Token::makeToken(Type::REL_OPERATOR, "<=");
+                return Token::makeToken(REL_OPERATOR, "<=");
             case 25:
                 shift(fp,-1);
-                return Token::makeToken(Type::REL_OPERATOR, "<");
+                return Token::makeToken(REL_OPERATOR, "<");
             case 26:
                 c = next(fp);
                 if (c == '>') state = 27;
@@ -161,25 +161,25 @@ Token *readOperator(char c) {
                 else state = 29;
                 break;
             case 28:
-                return Token::makeToken(Type::ASSIGN_OPERATOR, ">>=");
+                return Token::makeToken(ASSIGN_OPERATOR, ">>=");
             case 29:
                 shift(fp,-1);
-                return Token::makeToken(Type::BITWISE_OPERATOR, ">>");
+                return Token::makeToken(BITWISE_OPERATOR, ">>");
             case 30:
-                return Token::makeToken(Type::REL_OPERATOR, ">=");
+                return Token::makeToken(REL_OPERATOR, ">=");
             case 31:
                 shift(fp,-1);
-                return Token::makeToken(Type::REL_OPERATOR, ">");
+                return Token::makeToken(REL_OPERATOR, ">");
             case 32:
                 c = next(fp);
                 if (c == '=') state = 33;
                 else state = 34;
                 break;
             case 33:
-                return Token::makeToken(Type::REL_OPERATOR, "==");
+                return Token::makeToken(REL_OPERATOR, "==");
             case 34:
                 shift(fp,-1);
-                return Token::makeToken(Type::ASSIGN_OPERATOR, "=");
+                return Token::makeToken(ASSIGN_OPERATOR, "=");
         }
     }
 }
@@ -196,7 +196,7 @@ Token *readNumber(char c) {
             break;
         }
     }
-    return Token::makeToken(Type::NUMBER, atoi(num.c_str()));
+    return Token::makeToken(NUMBER, atoi(num.c_str()));
 }
 
 
@@ -211,7 +211,7 @@ Token *readStringLiteral() {
         s.push_back(c);
         c = next(fp);
     }
-    return Token::makeToken(Type::STRING_LITERAL, s);
+    return Token::makeToken(STRING_LITERAL, s);
 }
 
 char readEscapedChar() {
@@ -243,7 +243,7 @@ Token *readChar() {
         c = readEscapedChar();
     }
     next(fp);
-    return Token::makeToken(Type::CHAR_LITERAL, c);
+    return Token::makeToken(CHAR_LITERAL, c);
 }
 
 
@@ -264,7 +264,7 @@ Token *readIdentifier(char c) {
     
     int id = indexOf(s, RESERVED_KEYWORDS);
     if (id != -1) {
-        return Token::makeToken(Type::KEYWORD, s);
+        return Token::makeToken(KEYWORD, s);
     }
 
 
@@ -272,7 +272,7 @@ Token *readIdentifier(char c) {
     row->name = s;
     id = symbolTable.search(row);
     if (id != -1) {
-       return Token::makeToken(Type::IDENTIFIER, id);
+       return Token::makeToken(IDENTIFIER, id);
    }
    /*
     skipWhitespaces();
@@ -323,7 +323,7 @@ Token *readIdentifier(char c) {
 */
     id = symbolTable.insert(row);
      
-    return Token::makeToken(Type::IDENTIFIER, s);
+    return Token::makeToken(IDENTIFIER, s);
 }
 
 void skipWhitespaces() {
@@ -344,7 +344,7 @@ Token *getNextToken() {
 
     char c = next(fp);
     if (c == '\n') {
-        return Token::makeToken(Type::NEWLINE);
+        return Token::makeToken(NEWLINE);
     }
     Token * token = readOperator(c);
     if (token != nullptr) {
@@ -363,12 +363,12 @@ Token *getNextToken() {
         return readIdentifier(c);
     }
     if (isSpecialSymbol(c)) {
-        return Token::makeToken(Type::SPECIAL_SYMBOL, c);
+        return Token::makeToken(SPECIAL_SYMBOL, c);
     }
     if (c == EOF) {
-        return Token::makeToken(Type::TEOF);
+        return Token::makeToken(TEOF);
     }
-    return Token::makeToken(Type::INVALID, c);
+    return Token::makeToken(INVALID, c);
 
 
 }
@@ -386,7 +386,7 @@ int main() {
     Token *token;
     while (1) {
         token = getNextToken();
-        if (token->type == Type::TEOF) {
+        if (token->type == TEOF) {
             break;
         }
         output << token->getFormatted();

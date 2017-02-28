@@ -25,10 +25,10 @@ bool aterm() {
     cout << "Inside aterm \n";
 
     token = getNextToken();
-    if(token->type == Type::NUMBER) {
+    if(token->type == NUMBER) {
         return true;
     }
-    else if(token->type == Type::IDENTIFIER) {
+    else if(token->type == IDENTIFIER) {
         return true;
     }
     return false;
@@ -72,7 +72,7 @@ int main() {
     lex_initialize(inputFileName,outputFileName);
         if(lexp()) {
         token = getNextToken();
-        if(token->type == Type::TEOF) {
+        if(token->type == TEOF) {
             cout << "Success";
         }
         else {

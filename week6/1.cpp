@@ -62,7 +62,7 @@ int main() {
     lex_initialize(inputFileName,outputFileName);
     if(S()) {
         token = getNextToken();
-        if(token->type == Type::TEOF) {
+        if(token->type == TEOF) {
             cout << "Success";
         }
         else {

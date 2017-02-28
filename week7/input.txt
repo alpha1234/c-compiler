@@ -1,2 +1,9 @@
-main() {int a;
+main() {
+int a = 4;
+a = 7;
+while(5<2) {
+i = 6;
+
+}
+for(j = 0;m<5;k= j+1) {}
 }

@@ -29,7 +29,7 @@ enum {
 class Token {
 public:
 
-    Type type;
+    int type;
     struct {
         std::string s;
         int id;
@@ -42,20 +42,23 @@ public:
         std::ostringstream stream;
         stream << '<';
         switch (type) {
-            case Type::CHAR :
+            case CHAR :
                 stream << "CHAR," << value.c;
                 break;
-            case Type::NUMBER:
+            case NUMBER:
                 stream << "num," << value.number;
                 break;
-            case Type::IDENTIFIER:
+            case IDENTIFIER:
                 stream << "id," << value.s;
                 break;
-            case Type::STRING:
+            case STRING:
                 stream << "STRING," << value.s;
                 break;
-            case Type::INVALID:
+            case INVALID:
                 stream << "INVALID," << value.c;
+                break;
+            default:stream << "DEFAULT," << type;
+
         }
         if(type < 32) {
             stream << "KEYWORD," << value.s;
@@ -63,32 +66,32 @@ public:
         stream << '>';
         return stream.str();
     }
-    static struct Token *makeToken(Type type) {
+    static struct Token *makeToken(int type) {
         Token *t = new Token;
         t->type = type;
         return t;
     }
 
-    static struct Token *makeToken(Type type, std::string s) {
+    static struct Token *makeToken(int type, std::string s) {
         Token *t = new Token;
         t->type = type;
         t->value.s = s;
         return t;
     }
 
-    static struct Token *makeToken(Type type, int value) {
+    static struct Token *makeToken(int type, int value) {
         Token *t = new Token;
         t->type = type;
-        if(type == Type::IDENTIFIER) {
+        if(type == IDENTIFIER) {
             t->value.id = value;
         }
-        else if(type == Type::NUMBER) {
+        else if(type == NUMBER) {
             t->value.number = value;
         }
         return t;
     }
 
-    static struct Token *makeToken(Type type, char c) {
+    static struct Token *makeToken(int type, char c) {
         Token *t = new Token;
         t->type = type;
         t->value.c = c;

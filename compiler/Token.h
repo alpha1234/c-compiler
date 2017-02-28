@@ -2,93 +2,67 @@
 #include <sstream>
 
 
-enum class Type {
-    KEYWORD,
+
+enum {
+    KEYWORD_AUTO, KEYWORD_BREAK, KEYWORD_CASE, KEYWORD_CHAR, KEYWORD_CONST,
+    KEYWORD_CONTINUE, KEYWORD_DEFAULT, KEYWORD_DO, KEYWORD_DOUBLE, KEYWORD_ELSE,
+    KEYWORD_ENUM, KEYWORD_EXTERN, KEYWORD_FLOAT, KEYWORD_FOR, KEYWORD_GOTO,
+    KEYWORD_IF, KEYWORD_INT, KEYWORD_LONG, KEYWORD_REGISTER, KEYWORD_RETURN,
+    KEYWORD_SHORT, KEYWORD_SIGNED, KEYWORD_SIZEOF, KEYWORD_STATIC, KEYWORD_STRUCT,
+    KEYWORD_SWITCH, KEYWORD_TYPEDEF, KEYWORD_UNION, KEYWORD_UNSIGNED, KEYWORD_VOID,
+    KEYWORD_VOLATILE, KEYWORD_WHILE,
     IDENTIFIER,
-    STRING_LITERAL,
-    CHAR_LITERAL,
-    NUMBER,
-    SPECIAL_SYMBOL,
-    REL_OPERATOR,
-    ARITH_OPERATOR,
-    MEMBER_ACCESS_OPERATOR,
-    ASSIGN_OPERATOR,
-    LOGICAL_OPERATOR,
-    BITWISE_OPERATOR,
     INVALID,
-    NEWLINE,
-    TEOF
+    TEOF,
+    EQ, NOT, GREATER, LESS, PLUS, MINUS, MULT, DIV,
+    MOD, AND, OR, XOR, RSHIFT, LSHIFT, COMPL, AND_AND, OR_OR, QUERY, COLON,
+    COMMA, OPEN_PAREN, CLOSE_PAREN, EQ_EQ, NOT_EQ,
+    GREATER_EQ, LESS_EQ, PLUS_EQ, MINUS_EQ, MULT_EQ,
+    DIV_EQ, MOD_EQ, AND_EQ, OR_EQ, XOR_EQ, RSHIFT_EQ,
+    LSHIFT_EQ, OPEN_SQUARE, CLOSE_SQUARE, OPEN_BRACE, CLOSE_BRACE,
+    SEMICOLON, PLUS_PLUS, MINUS_MINUS, DEREF,
+    DOT, DEREF_STAR, DOT_STAR,
+    NUMBER, CHAR, OTHER, STRING
 };
 
-struct Token {
+
+class Token {
+public:
+
     Type type;
-    union {
-        char *s;
-        unsigned int id;
+    struct {
+        std::string s;
+        int id;
         char c;
         int number;
     } value;
 
-    std::string getString() {
-        if ((type == Type::CHAR_LITERAL) || type == Type::SPECIAL_SYMBOL) {
-            std::string a;
-            a.push_back(value.c);
-            return a;
-        }
-        return std::string(value.s);
-    }
-    char getChar() {
-        return value.c;
-    }
+
     std::string getFormatted() {
         std::ostringstream stream;
         stream << '<';
         switch (type) {
-            case Type::CHAR_LITERAL :
-                stream << "CHAR_LITERAL," << value.c;
-                break;
-            case Type::SPECIAL_SYMBOL :
-                stream << "SPECIAL_SYMBOL," << value.c;
-                break;
-            case Type::IDENTIFIER:
-                stream << "id," << value.s;
-                break;
-            case Type::STRING_LITERAL:
-                stream << "STRING_LITERAL," << value.s;
-                break;
-            case Type::KEYWORD:
-                stream << "KEYWORD," << value.s;
+            case Type::CHAR :
+                stream << "CHAR," << value.c;
                 break;
             case Type::NUMBER:
                 stream << "num," << value.number;
                 break;
-            case Type::REL_OPERATOR:
-                stream << "REL_OPERATOR," << value.s;
+            case Type::IDENTIFIER:
+                stream << "id," << value.s;
                 break;
-            case Type::ARITH_OPERATOR:
-                stream << "ARITH_OPERATOR," << value.s;
+            case Type::STRING:
+                stream << "STRING," << value.s;
                 break;
-            case Type::MEMBER_ACCESS_OPERATOR:
-                stream << "MEMBER_ACCESS," << value.s;
-                break;
-            case Type::ASSIGN_OPERATOR:
-                stream << "ASSIGN_OPERATOR," << value.s;
-                break;
-            case Type::LOGICAL_OPERATOR:
-                stream << "LOGICAL_OPERATOR," << value.s;
-                break;
-            case Type::BITWISE_OPERATOR:
-                stream << "BITWISE_OPERATOR," << value.s;
-                break;
-            case Type::NEWLINE:
-                return "\n";
             case Type::INVALID:
                 stream << "INVALID," << value.c;
+        }
+        if(type < 32) {
+            stream << "KEYWORD," << value.s;
         }
         stream << '>';
         return stream.str();
     }
-
     static struct Token *makeToken(Type type) {
         Token *t = new Token;
         t->type = type;
@@ -98,8 +72,7 @@ struct Token {
     static struct Token *makeToken(Type type, std::string s) {
         Token *t = new Token;
         t->type = type;
-        t->value.s = new char[s.size()];   //TODO Possible Memory leak on destruction of Token
-        strcpy(t->value.s, const_cast<char *>(s.c_str()));
+        t->value.s = s;
         return t;
     }
 
@@ -121,5 +94,6 @@ struct Token {
         t->value.c = c;
         return t;
     }
+
 };
 

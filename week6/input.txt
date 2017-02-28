@@ -1,2 +1,1 @@
-<=dth
-gtdyh
+main

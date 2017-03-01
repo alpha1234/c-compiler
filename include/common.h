@@ -1,12 +1,12 @@
 #pragma once
 
+#include <vector>
+
 FILE *openFile(const char *, const char *);
 
 void copyFile(const char *, const char *);
 
 char next(FILE *);
-
-void undo(FILE *, char);
 
 void shift(FILE *, int);
 

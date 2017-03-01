@@ -1,17 +1,12 @@
-#include "compiler/compiler.h"
-#include "compiler/Token.h"
-#include "compiler/lex.h"
-#include <map>
+#include "include/compiler.h"
+#include "include/common.h"
+#include "include/lex.h"
 
 using namespace std;
 
 int main() {
 
+    vector<int> a;
+    a.push_back(4);
 
-    char inputFileName[] = "week7/input.txt";
-    lex_initialize(inputFileName);
-
-    Token t = Token::makeToken(PLUS);
-    lex_finalize();
-    return 0;
 }

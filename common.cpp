@@ -38,11 +38,6 @@ void shift(FILE *fp, int m) {
     fseek(fp, m, SEEK_CUR);
 }
 
-void undo(FILE *fp, char c) {
-    column--;
-    ungetc(c, fp);
-}
-
 char peek(FILE *fp,int m) {
     shift(fp,m-1);
     char c = next(fp);
@@ -50,8 +45,9 @@ char peek(FILE *fp,int m) {
     return c;
 }
 
-
-int indexOf(vector<string> array,string s) {
+/*
+template <class T>
+int indexOf(vector<T> array,T s) {
     for(int i= 0;i< array.size();i++) {
         if(array[i] == s) {
             return i;
@@ -60,7 +56,8 @@ int indexOf(vector<string> array,string s) {
     return -1;
 }
 
-bool inArray(vector<string> array,string s) {
+template <class T>
+bool inArray(vector<T> array,T s) {
     for(int i= 0;i< array.size();i++) {
         if(array[i] == s) {
             return true;
@@ -69,7 +66,7 @@ bool inArray(vector<string> array,string s) {
     return false;
 }
 
-
+ */
 /*
 void preprocess(char inputFileName[], char outputFileName[]) {
     FILE *input = openFile(inputFileName, "r");

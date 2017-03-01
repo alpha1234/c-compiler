@@ -117,6 +117,7 @@ Token readOperator(char c) {
                 return Token::makeToken(EQ);
             }
     }
+    return Token();
 }
 
 Token readNumber(char c) {
@@ -168,6 +169,7 @@ char readEscapedChar() {
         case '\\':
             return '\\';
     }
+    return 0;
 }
 
 

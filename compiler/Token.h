@@ -1,5 +1,7 @@
 #pragma once
 #include <sstream>
+#include <vector>
+#include <string>
 
 
 enum {
@@ -23,7 +25,7 @@ enum {
     TEOF,
 };
 
-const char TYPE_MAPPING[] = {
+const std::vector<std::string> TYPE_MAPPING = {
         "KEYWORD_AUTO","KEYWORD_BREAK","KEYWORD_CASE","KEYWORD_CHAR","KEYWORD_CONST",
         "KEYWORD_CONTINUE","KEYWORD_DEFAULT","KEYWORD_DO","KEYWORD_DOUBLE","KEYWORD_ELSE",
         "KEYWORD_ENUM","KEYWORD_EXTERN","KEYWORD_FLOAT","KEYWORD_FOR","KEYWORD_GOTO",
@@ -55,33 +57,23 @@ public:
         char c;
         int number;
     } value;
+    int line;
+    int column;
 
 
     std::string getFormatted() {
         std::ostringstream stream;
-        stream << '<';
+        stream << '<'<<TYPE_MAPPING[type]<<',';
         switch (type) {
-            case CHAR :
-                stream << "CHAR," << value.c;
+            case CHAR : case INVALID:
+                stream <<  value.c;
                 break;
             case NUMBER:
-                stream << "num," << value.number;
+                stream <<  value.number;
                 break;
-            case IDENTIFIER:
-                stream << "id," << value.s;
-                break;
-            case STRING:
-                stream << "STRING," << value.s;
-                break;
-            case INVALID:
-                stream << "INVALID," << value.c;
-                break;
-            default:stream << "DEFAULT," << type;
-
+            default: stream << value.s;
         }
-        if(type < 32) {
-            stream << "KEYWORD," << value.s;
-        }
+     
         stream << '>';
         return stream.str();
     }

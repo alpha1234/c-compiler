@@ -3,9 +3,12 @@
 
 using namespace std;
 
+int line,column;
 
 FILE *openFile(string fileName, const char mode[]) {
     FILE *fp = fopen(fileName.c_str(), mode);
+    column = 1;
+    line = 1;
     if (fp == NULL) {
         cout << "Could not open file:" << fileName;
         exit(1);
@@ -25,23 +28,29 @@ void copyFile(char source[], char destination[]) {
 }
 
 char next(FILE *fp) {
+    column++;
     return fgetc(fp);
 }
 
 char prev(FILE *fp) {
+    column--;
     if (ftell(fp) == 1) {
         fseek(fp, -1, SEEK_CUR);
     } else {
+        column--;
         fseek(fp, -2, SEEK_CUR);
     }
     return fgetc(fp);
 }
 
 void shift(FILE *fp, int m) {
+
+    column = column + m;
     fseek(fp, m, SEEK_CUR);
 }
 
 void undo(FILE *fp, char c) {
+    column--;
     ungetc(c, fp);
 }
 
@@ -94,7 +103,7 @@ void preprocess(char inputFileName[], char outputFileName[]) {
                         break;
                     }
                 }
-                continue;
+                c = next(input);
             } else if (d == '/') {
                 while (1) {
                     d = next(input);
@@ -105,7 +114,7 @@ void preprocess(char inputFileName[], char outputFileName[]) {
                     }
                 }
                 fputc('\n', output);
-                continue;
+                c = next(input);
             }
         }
         fputc(c, output);

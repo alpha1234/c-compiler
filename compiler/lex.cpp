@@ -6,6 +6,8 @@ using namespace std;
 
 FILE *fp,*tokensOutput;
 int filePointerLocation;
+extern int line;
+extern int column;
 
 
 const vector <std::string> RESERVED_KEYWORDS = {
@@ -116,143 +118,7 @@ Token *readOperator(char c) {
             }
     }
 }
-/*
-Token *readOperator(char c) {
-    char state = 0;
-    while (1) {
-        switch (state) {
-            case 0:
-                switch(c) {
-                    case '-':state = 1;break;
-                    case '+':state = 6;break;
-                    case '!':state = 10;break;
-                    case '~':state = 13;break;
-                    case '/':state = 14;break;
-                    case '%':state = 17;break;
-                    case '<':state = 20;break;
-                    case '>':state = 26;break;
-                    case '=':state = 32;break;
-                    default:
-                        return nullptr;
-                }
-                break;
-            case 1:
-                c = next(fp);
-                if (c == '>') state = 2;
-                else if (c == '-') state = 3;
-                else if(c == '=') state = 4;
-                else state = 5;
-                break;
-            case 2:
-                return Token::makeToken(MEMBER_ACCESS_OPERATOR, "->");
-            case 3:
-                return Token::makeToken(ARITH_OPERATOR, "--");
-            case 4:
-                return Token::makeToken(ASSIGN_OPERATOR, "-=");
-            case 5:
-                shift(fp, -1);
-                return Token::makeToken(ARITH_OPERATOR, "-");
-            case 6:
-                c = next(fp);
-                if (c == '+') state = 7;
-                else if (c == '=') state = 8;
-                else state = 9;
-                break;
-            case 7:
-                return Token::makeToken(ARITH_OPERATOR, "++");
-            case 8:
-                return Token::makeToken(ASSIGN_OPERATOR,"+=");
-            case 9:
-                shift(fp, -1);
-                return Token::makeToken(ARITH_OPERATOR, "+");
-            case 10:
-                c = next(fp);
-                if(c == '=') state = 11;
-                else state = 12;
-                break;
-            case 11:
-                return Token::makeToken(REL_OPERATOR, "!=");
-            case 12:
-                shift(fp, -1);
-                return Token::makeToken(LOGICAL_OPERATOR, "!");
-            case 13:
-                return Token::makeToken(BITWISE_OPERATOR, "~");
-            case 14:
-                c = next(fp);
-                if(c == '=') state = 15;
-                else state = 16;
-                break;
-            case 15:
-                return Token::makeToken(ASSIGN_OPERATOR, "/=");
-            case 16:
-                shift(fp, -1);
-                return Token::makeToken(ARITH_OPERATOR, "/");
-            case 17:
-                c = next(fp);
-                if(c == '=') state = 18;
-                else state = 19;
-                break;
-            case 18:
-                return Token::makeToken(ASSIGN_OPERATOR, "%");
-            case 19:
-                shift(fp, -1);
-                return Token::makeToken(ARITH_OPERATOR, "%");
-            case 20:
-                c = next(fp);
-                if (c == '<') state = 21;
-                else if (c == '=') state = 24;
-                else state = 25;
-                break;
-            case 21:
-                c = next(fp);
-                if (c == '=') state = 22;
-                else state = 23;
-                break;
-            case 22:
-                return Token::makeToken(ASSIGN_OPERATOR, "<<=");
-            case 23:
-                shift(fp,-1);
-                return Token::makeToken(BITWISE_OPERATOR, "<<");
-            case 24:
-                return Token::makeToken(REL_OPERATOR, "<=");
-            case 25:
-                shift(fp,-1);
-                return Token::makeToken(REL_OPERATOR, "<");
-            case 26:
-                c = next(fp);
-                if (c == '>') state = 27;
-                else if (c == '=') state = 30;
-                else state = 31;
-                break;
-            case 27:
-                c = next(fp);
-                if (c == '=') state = 28;
-                else state = 29;
-                break;
-            case 28:
-                return Token::makeToken(ASSIGN_OPERATOR, ">>=");
-            case 29:
-                shift(fp,-1);
-                return Token::makeToken(BITWISE_OPERATOR, ">>");
-            case 30:
-                return Token::makeToken(REL_OPERATOR, ">=");
-            case 31:
-                shift(fp,-1);
-                return Token::makeToken(REL_OPERATOR, ">");
-            case 32:
-                c = next(fp);
-                if (c == '=') state = 33;
-                else state = 34;
-                break;
-            case 33:
-                return Token::makeToken(REL_OPERATOR, "==");
-            case 34:
-                shift(fp,-1);
-                return Token::makeToken(ASSIGN_OPERATOR, "=");
-        }
-    }
-}
-*/
+
 Token *readNumber(char c) {
     string num;
     num.push_back(c);
@@ -346,6 +212,13 @@ void skipWhitespaces() {
             shift(fp, -1);
             break;
         }
+        if(c == '\n') {
+            line++;
+            column = 1;
+        }
+        else if(c == '\t') {
+            column += 3;   //Don't increment by 4.next() function will increment by 1. 
+        }
     }
 }
 
@@ -405,6 +278,8 @@ Token *temp() {
 
 Token * getNextToken() {
     Token *t = temp();
+    t->line = line;
+    t->column = column;
     fputs(t->getFormatted().c_str(), tokensOutput);
     fputc('\n',tokensOutput);
     return t;

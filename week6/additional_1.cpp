@@ -54,7 +54,6 @@ void removeLeftRecursion(vector<Production>& grammar,int productionIndex,int rul
     temp.lhs = prodWithRecursion.lhs;
     grammar.push_back(temp);
 
-  //  Production temp1;
     temp = {};
 
     tempRule.erase(tempRule.begin());
@@ -64,8 +63,6 @@ void removeLeftRecursion(vector<Production>& grammar,int productionIndex,int rul
     temp.lhs = prodWithRecursion.lhs + "1";
     grammar.push_back(temp1);
 
-
-    //grammar.erase(grammar.begin() + productionIndex);
 
 
 }
@@ -93,10 +90,6 @@ int main() {
                           }
                     }
             };
-
-    //   grammar.push_back(p1);
-    //   grammar.push_back(p2);
-    //   grammar.push_back(p3);
 
     int temp;
     vector <vector<int>> rulesWithRecursion;

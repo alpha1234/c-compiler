@@ -25,7 +25,7 @@ bool E1() {
     cout << "Inside E1 \n";
 
     token = getNextToken();
-    if(token->getString() == "+") {
+    if(token->type == PLUS) {
         if(T()) {
             return E1();
         }
@@ -45,7 +45,7 @@ bool T1() {
     cout << "Inside T1 \n";
 
     token = getNextToken();
-    if(token->getString() == "*") {
+    if(token->type == MULT) {
         if(F()) {
             return T1();
         }
@@ -58,10 +58,10 @@ bool F() {
     cout << "Inside F \n";
 
     token = getNextToken();
-    if (token->getString() == "(") {
+    if (token->type == OPEN_PAREN) {
         if (E()) {
             token = getNextToken();
-            if (token->getString() == ")") {
+            if (token->type == CLOSE_PAREN) {
                 return true;
             }
         }
@@ -77,8 +77,7 @@ bool F() {
 int main() {
 
  char inputFileName[] = "input.txt";
-    char outputFileName[] = "output.txt";
-    lex_initialize(inputFileName,outputFileName);
+    lex_initialize(inputFileName);
         if(E()) {
         token = getNextToken();
         if(token->type == TEOF) {

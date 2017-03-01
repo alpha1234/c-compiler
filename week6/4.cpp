@@ -36,10 +36,10 @@ bool aterm() {
 bool list() {
     cout << "Inside list \n";
     token = getNextToken();
-    if(token->getString() == "(") {
+    if(token->type == OPEN_PAREN) {
         if(lexp_seq()) {
             token = getNextToken();
-            if(token->getString() == ")") {
+            if(token->type == CLOSE_PAREN) {
                 return true;
             }
         }
@@ -68,8 +68,7 @@ bool lexp_seq1() {
 int main() {
 
  char inputFileName[] = "input.txt";
-    char outputFileName[] = "output.txt";
-    lex_initialize(inputFileName,outputFileName);
+    lex_initialize(inputFileName);
         if(lexp()) {
         token = getNextToken();
         if(token->type == TEOF) {

@@ -1,7 +1,6 @@
 #include "../compiler/compiler.h"
 #include "../compiler/Token.h"
 #include "../compiler/lex.h"
-#include <initializer_list>
 #include <map>
 
 using namespace std;
@@ -46,7 +45,9 @@ void next() {
 }
 
 void error(string message) {
-    cout<<"Expecting: "<<message<<" Found "<<token->getFormatted();
+    cout<<"\nERROR on line "<<token->line<<" column "<<token->column<<"\n";
+    cout<<"Expected: "<<message<<" Found: "<<token->getFormatted()<<"\n";
+    lex_finalize();
     exit(0);
 }
 

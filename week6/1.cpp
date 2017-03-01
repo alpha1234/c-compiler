@@ -57,7 +57,7 @@ bool T1() {
 
 
 int main() {
-  char inputFileName[] = "input.txt";
+    char inputFileName[] = "input.txt";
     lex_initialize(inputFileName);
     if(S()) {
         token = getNextToken();

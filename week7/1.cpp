@@ -70,13 +70,13 @@ bool accept(string s) {
 
 void expect(int type) {
     if (!accept(type)) {
-        error(to_string(type));
+        error(TYPE_MAPPING[type]);
     }
 }
 
 
 void S() {
-    cout<<"S\n";
+   // cout<<"S\n";
 
     if(accept("main")) {
         expect(OPEN_PAREN);
@@ -326,13 +326,13 @@ int main() {
             {"TPRIME",{MULT,DIV,MOD}}
     };
 
-    char inputFileName[] = "input.txt";
-    lex_initialize(inputFileName);
+    char inputFileName[] = "data/input.txt";
+    compiler_initialize(inputFileName);
 
     next();
     S();
     expect(TEOF);
     cout<< "Success";
-    lex_finalize();
+    compiler_finalize();
     return 0;
 }

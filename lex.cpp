@@ -292,7 +292,7 @@ void undoTokenGet() {
 
 void lex_initialize(const char *inputFileName) {
     fp = openFile(inputFileName, "r");
-    tokensOutput = openFile("tokens.txt", "w");
+    tokensOutput = openFile("data/tokens.txt", "w");
 }
 
 void lex_finalize() {

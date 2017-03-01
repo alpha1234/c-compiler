@@ -1,8 +1,8 @@
 #pragma once
 
-FILE *openFile(std::string a, const char *b);
+FILE *openFile(const char *, const char *);
 
-void copyFile(char *, char *);
+void copyFile(const char *, const char *);
 
 char next(FILE *);
 

@@ -67,8 +67,8 @@ bool lexp_seq1() {
 
 int main() {
 
- char inputFileName[] = "input.txt";
-    lex_initialize(inputFileName);
+ char inputFileName[] = "data/input.txt";
+    compiler_initialize(inputFileName);
         if(lexp()) {
         token = getNextToken();
         if(token.type == TEOF) {
@@ -82,6 +82,6 @@ int main() {
         cout<<"Error";
     }
 
-    lex_finalize();
+    compiler_finalize();
     return 0;
 }

@@ -7,7 +7,7 @@
 using namespace std;
 
 
-void removeComments(const char inputFileName[], const char outputFileName[]) {
+void removeComments(const char *inputFileName, const char *outputFileName) {
     if(strcmp(inputFileName,outputFileName) == 0) {
         cout<<"Input and Outut filename cannot be same : removeComments()";
         exit(1);

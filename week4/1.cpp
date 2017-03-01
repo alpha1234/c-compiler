@@ -1,8 +1,8 @@
-#include "../compiler/compiler.h"
-#include "../compiler/HashTable.h"
-#include "../compiler/Token.h"
-#include "../compiler/SymbolTable.h"
-#include "../compiler/lex.h"
+#include "../include/compiler.h"
+#include "../include/HashTable.h"
+#include "../include/Token.h"
+#include "../include/SymbolTable.h"
+#include "../include/lex.h"
 
 using namespace std;
 
@@ -75,7 +75,7 @@ void insertIntoSymbolTable(Token& token) {
 
 
 int main() {
-    char inputFileName[] = "input.txt";
+    char inputFileName[] = "data/input.txt";
     compiler_initialize(inputFileName);
     Token token;
     while (1) {

@@ -6,8 +6,8 @@ using namespace std;
 /* extern variables */
 int line,column;
 
-FILE *openFile(string fileName, const char mode[]) {
-    FILE *fp = fopen(fileName.c_str(), mode);
+FILE *openFile(const char * fileName, const char *mode) {
+    FILE *fp = fopen(fileName, mode);
     column = 1;
     line = 1;
     if (fp == NULL) {
@@ -17,7 +17,7 @@ FILE *openFile(string fileName, const char mode[]) {
     return fp;
 }
 
-void copyFile(char source[], char destination[]) {
+void copyFile(const char *source, const char *destination) {
     FILE *f1 = openFile(source, "r");
     FILE *f2 = openFile(destination, "w");
     char buf[1000];

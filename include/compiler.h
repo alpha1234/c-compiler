@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <fstream>
 
-#define TEMPFILE "temp.txt"
+#define TEMPFILE "data/temp.txt"
 
 void compiler_initialize(char *);
 void compiler_finalize();

@@ -47,8 +47,7 @@ const std::vector<std::string> TYPE_MAPPING = {
 };
 
 
-class Token {
-public:
+struct Token {
 
     int type;
     struct {
@@ -77,35 +76,35 @@ public:
         stream << '>';
         return stream.str();
     }
-    static Token *makeToken(int type) {
-        Token *t = new Token;
-        t->type = type;
+    static Token makeToken(int type) {
+        Token t;
+        t.type = type;
         return t;
     }
 
-    static Token *makeToken(int type, std::string s) {
-        Token *t = new Token;
-        t->type = type;
-        t->value.s = s;
+    static Token makeToken(int type, std::string s) {
+        Token t;
+        t.type = type;
+        t.value.s = s;
         return t;
     }
 
-    static Token *makeToken(int type, int value) {
-        Token *t = new Token;
-        t->type = type;
+    static Token makeToken(int type, int value) {
+        Token t;
+        t.type = type;
         if(type == IDENTIFIER) {
-            t->value.id = value;
+            t.value.id = value;
         }
         else if(type == NUMBER) {
-            t->value.number = value;
+            t.value.number = value;
         }
         return t;
     }
 
-    static Token *makeToken(int type, char c) {
-        Token *t = new Token;
-        t->type = type;
-        t->value.c = c;
+    static Token makeToken(int type, char c) {
+        Token t;
+        t.type = type;
+        t.value.c = c;
         return t;
     }
 

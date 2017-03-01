@@ -1,6 +1,6 @@
-#include "../compiler/compiler.h"
-#include "../compiler/Token.h"
-#include "../compiler/lex.h"
+#include "../include/compiler.h"
+#include "../include/Token.h"
+#include "../include/lex.h"
 #include <map>
 
 using namespace std;
@@ -26,7 +26,7 @@ void RELOP();
 void ADDOP();
 void MULOP();
 
-Token *token;
+Token token;
 
 map<string,vector<int>> FIRST;
 
@@ -45,14 +45,14 @@ void next() {
 }
 
 void error(string message) {
-    cout<<"\nERROR on line "<<token->line<<" column "<<token->column<<"\n";
-    cout<<"Expected: "<<message<<" Found: "<<token->getFormatted()<<"\n";
+    cout<<"\nERROR on line "<<token.line<<" column "<<token.column<<"\n";
+    cout<<"Expected: "<<message<<" Found: "<<token.getFormatted()<<"\n";
     lex_finalize();
     exit(0);
 }
 
 bool accept(int type) {
-    if (token->type == type) {
+    if (token.type == type) {
         next();
         return true;
     }
@@ -60,7 +60,7 @@ bool accept(int type) {
 }
 
 bool accept(string s) {
-    if (token->value.s == s) {
+    if (token.value.s == s) {
         next();
         return true;
     }
@@ -90,7 +90,7 @@ void S() {
 
 void DECLARATIONS() {
     cout<<"DECLARATIONS\n";
-    if(inArray(token->type,FIRST["DECLARATIONS"])) {
+    if(inArray(token.type,FIRST["DECLARATIONS"])) {
         DATA_TYPE();
         IDENTIFIER_LIST();
         expect(SEMICOLON);
@@ -141,7 +141,7 @@ void IDENTIFIER_LIST() {
 void STATEMENT_LIST() {
     cout<<"STATEMENT_LIST\n";
 
-    if(inArray(token->type,FIRST["STATEMENT_LIST"])) {
+    if(inArray(token.type,FIRST["STATEMENT_LIST"])) {
         STATEMENT();
         STATEMENT_LIST();
     }
@@ -151,14 +151,14 @@ void STATEMENT_LIST() {
 void STATEMENT() {
     cout<<"STATEMENT\n";
 
-    if(token->type == IDENTIFIER) {
+    if(token.type == IDENTIFIER) {
         ASSIGN_STAT();
         expect(SEMICOLON);
     }
-    else if(token->type == KEYWORD_IF) {
+    else if(token.type == KEYWORD_IF) {
         DECISION_STAT();
     }
-    else if(inArray(token->type,FIRST["STATEMENT"])) {
+    else if(inArray(token.type,FIRST["STATEMENT"])) {
         LOOPING_STAT();
     }
     else {
@@ -182,7 +182,7 @@ void EXPN() {
 }
 void EPRIME() {
     cout<<"EPRIME\n";
-        if(inArray(token->type,FIRST["EPRIME"])) {
+        if(inArray(token.type,FIRST["EPRIME"])) {
             RELOP();
         SIMPLE_EXPN();
     }
@@ -197,7 +197,7 @@ void SIMPLE_EXPN() {
 void SEPRIME() {
     cout<<"SEPRIME\n";
 
-    if(inArray(token->type,FIRST["SEPRIME"])) {
+    if(inArray(token.type,FIRST["SEPRIME"])) {
         ADDOP();
         TERM();
         SEPRIME();
@@ -213,7 +213,7 @@ void TERM() {
 
 void TPRIME() {
     cout<<"TPRIME\n";
-    if(inArray(token->type,FIRST["TPRIME"])) {
+    if(inArray(token.type,FIRST["TPRIME"])) {
         MULOP();
         FACTOR();
         TPRIME();

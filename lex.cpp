@@ -1,6 +1,6 @@
-#include "compiler.h"
-#include "common.h"
-#include "Token.h"
+#include "include/compiler.h"
+#include "include/common.h"
+#include "include/Token.h"
 
 using namespace std;
 
@@ -22,7 +22,7 @@ const vector <std::string> RESERVED_KEYWORDS = {
 
 
 
-Token *readOperator(char c) {
+Token readOperator(char c) {
     switch (c) {
         case '-':
             c = next(fp);
@@ -119,7 +119,7 @@ Token *readOperator(char c) {
     }
 }
 
-Token *readNumber(char c) {
+Token readNumber(char c) {
     string num;
     num.push_back(c);
     while (1) {
@@ -135,7 +135,7 @@ Token *readNumber(char c) {
 }
 
 
-Token *readStringLiteral() {
+Token readStringLiteral() {
     string s;
     char c = next(fp);
     while (c != '"') {
@@ -171,7 +171,7 @@ char readEscapedChar() {
 }
 
 
-Token *readChar() {
+Token readChar() {
     char c = next(fp);
     if (c == '\\') {
         /* Escaped Char */
@@ -182,7 +182,7 @@ Token *readChar() {
 }
 
 
-Token *readIdentifier(char c) {
+Token readIdentifier(char c) {
     string s;
     s.push_back(c);
 
@@ -196,9 +196,10 @@ Token *readIdentifier(char c) {
         }
         s.push_back(c);
     }
-    int index = distance( RESERVED_KEYWORDS.begin(), find(RESERVED_KEYWORDS.begin(), RESERVED_KEYWORDS.end(), s));
+    int index = distance( RESERVED_KEYWORDS.begin(),
+                          find(RESERVED_KEYWORDS.begin(), RESERVED_KEYWORDS.end(), s));
     if(index < RESERVED_KEYWORDS.size())
-        return Token::makeToken(index,s);
+        return Token::makeToken(index);
 
     return Token::makeToken(IDENTIFIER, s);
 }
@@ -224,7 +225,7 @@ void skipWhitespaces() {
 
 
 
-Token *temp() {
+Token temp() {
     skipWhitespaces();
     filePointerLocation = ftell(fp);
 
@@ -276,11 +277,11 @@ Token *temp() {
     return Token::makeToken(INVALID, c);
 }
 
-Token * getNextToken() {
-    Token *t = temp();
-    t->line = line;
-    t->column = column;
-    fputs(t->getFormatted().c_str(), tokensOutput);
+Token getNextToken() {
+    Token t = temp();
+    t.line = line;
+    t.column = column;
+    fputs(t.getFormatted().c_str(), tokensOutput);
     fputc('\n',tokensOutput);
     return t;
 }
@@ -289,16 +290,14 @@ void undoTokenGet() {
     fseek ( fp , filePointerLocation , SEEK_SET );
 }
 
-void lex_initialize(char *inputFileName) {
-    char outputFileName[] = "temp.txt";
-    preprocess(inputFileName, outputFileName);
-    fp = openFile(outputFileName, "r");
+void lex_initialize(const char *inputFileName) {
+    fp = openFile(inputFileName, "r");
     tokensOutput = openFile("tokens.txt", "w");
-
 }
 
 void lex_finalize() {
     fclose(fp);
+    fclose(tokensOutput);
 }
 
 

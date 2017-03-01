@@ -1,6 +1,0 @@
-FILE *fp3 = fopen(file3.c_str(),"w");
-	if (fp2 == NULL) {
-		cout<<"Could not open file:"<<file3;
-		return 1;
-	}
-	int f

@@ -1,8 +1,0 @@
-	}
-
-		if(!file2Finished) {
-			line.clear();		
-			while(c = fgetc(fp2)) {
-				if(c == EOF) {
-					file2Finished = 1;
-				

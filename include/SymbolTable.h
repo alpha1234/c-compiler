@@ -8,15 +8,12 @@ typedef struct {
     int noOfArguments;
     std::string arguments;
     std::string returnType;
+    int id;
 } SymbolTableRow;
 
 
 std::ostream &operator<<(std::ostream &o, const SymbolTableRow &a) {
     return o << a.name;
-}
-
-std::ostream &operator<<(std::ostream &o, const SymbolTableRow *a) {
-    return o << a->name;
 }
 
 

@@ -1,6 +1,6 @@
-#include "../compiler/compiler.h"
-#include "../compiler/Token.h"
-#include "../compiler/lex.h"
+#include "../include/compiler.h"
+#include "../include/Token.h"
+#include "../include/lex.h"
 
 using namespace std;
 
@@ -8,20 +8,20 @@ bool S();
 bool T();
 bool T1();
 
-Token *token;
+Token token;
 bool S() {
     cout << "Inside S \n";
     token = getNextToken();
-    if(token->value.s == "a") {
+    if(token.value.s == "a") {
         return true;
     }
-    else if(token->type == DEREF) {
+    else if(token.type == DEREF) {
         return true;
     }
-    else if(token->type == OPEN_PAREN) {
+    else if(token.type == OPEN_PAREN) {
         if(T()) {
             token = getNextToken();
-            if (token->type == CLOSE_PAREN) {
+            if (token.type == CLOSE_PAREN) {
                 return true;
             }
         }
@@ -43,7 +43,7 @@ bool T1() {
     cout << "Inside T1 \n";
 
     token = getNextToken();
-    if(token->type == COMMA) {
+    if(token.type == COMMA) {
         if(S()) {
             return T1();
         }
@@ -61,7 +61,7 @@ int main() {
     lex_initialize(inputFileName);
     if(S()) {
         token = getNextToken();
-        if(token->type == TEOF) {
+        if(token.type == TEOF) {
             cout << "Success";
         }
         else {

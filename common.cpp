@@ -1,8 +1,9 @@
-#include "compiler.h"
-#include "common.h"
+#include "include/compiler.h"
+#include "include/common.h"
 
 using namespace std;
 
+/* extern variables */
 int line,column;
 
 FILE *openFile(string fileName, const char mode[]) {
@@ -32,19 +33,7 @@ char next(FILE *fp) {
     return fgetc(fp);
 }
 
-char prev(FILE *fp) {
-    column--;
-    if (ftell(fp) == 1) {
-        fseek(fp, -1, SEEK_CUR);
-    } else {
-        column--;
-        fseek(fp, -2, SEEK_CUR);
-    }
-    return fgetc(fp);
-}
-
 void shift(FILE *fp, int m) {
-
     column = column + m;
     fseek(fp, m, SEEK_CUR);
 }
@@ -61,11 +50,27 @@ char peek(FILE *fp,int m) {
     return c;
 }
 
-void ab(FILE *fp) {
-    cout << "Position " << ftell(fp) << "\n";
+
+int indexOf(vector<string> array,string s) {
+    for(int i= 0;i< array.size();i++) {
+        if(array[i] == s) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+bool inArray(vector<string> array,string s) {
+    for(int i= 0;i< array.size();i++) {
+        if(array[i] == s) {
+            return true;
+        }
+    }
+    return false;
 }
 
 
+/*
 void preprocess(char inputFileName[], char outputFileName[]) {
     FILE *input = openFile(inputFileName, "r");
     FILE *output = openFile(outputFileName, "w");
@@ -123,3 +128,5 @@ void preprocess(char inputFileName[], char outputFileName[]) {
     fclose(input);
 
 }
+
+ */

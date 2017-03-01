@@ -3,31 +3,30 @@
 #define TABLE_SIZE 20
 
 
-template<typename V>
+template<typename K, typename V>
 class Node {
 public:
-    Node(int key, V &value) :
+    Node(K key, V &value) :
             key(key), value(value), next(NULL) {
     }
 
-    int key;
+    K key;
     V value;
     Node *next;
 };
 
 
-template<typename V>
+template<typename K, typename V>
 class HashMap {
 public:
     HashMap() {
-        table = new Node<V> *[TABLE_SIZE]();
-        lastInsertKey = -1;
+        table = new Node<K,V> *[TABLE_SIZE]();
     }
 
     ~HashMap() {
         for (int i = 0; i < TABLE_SIZE; ++i) {
-            Node<V> *entry = table[i];
-            Node<V> *prev = nullptr;
+            Node<K,V> *entry = table[i];
+            Node<K,V> *prev = nullptr;
             while (entry != NULL) {
                 prev = entry;
                 entry = entry->next;
@@ -38,42 +37,25 @@ public:
         delete[] table;
     }
 
-    V search(int key) {
+    bool get(K &key,V &value) {
         int hashValue = hashFunc(key);
-        Node<V> *entry = table[hashValue];
+        Node<K,V> *entry = table[hashValue];
 
         while (entry != NULL) {
             if (entry->key == key) {
-                return entry->value;
+                value =  entry->value;
+                return true;
             }
             entry = entry->next;
         }
-        return nullptr;
+        return false;
     }
 
 
-    int search(V &value) {
-        Node<V> *entry = nullptr;
-
-        for (int i = 0; i < TABLE_SIZE; i++) {
-            entry = table[i];
-            while (entry != NULL) {
-                if (entry->value == value) {
-                    return entry->key;
-                }
-                entry = entry->next;
-            }
-        }
-
-
-        return -1;
-    }
-
-    int insert(V &value) {
-        int key = ++lastInsertKey;
+    void insert(K &key,V &value) {
         int hashValue = hashFunc(key);
-        Node<V> *prev = NULL;
-        Node<V> *entry = table[hashValue];
+        Node<K,V> *prev = NULL;
+        Node<K,V> *entry = table[hashValue];
 
         while (entry != NULL && entry->key != key) {
             prev = entry;
@@ -81,7 +63,7 @@ public:
         }
 
         if (entry == NULL) {
-            entry = new Node<V>(key, value);
+            entry = new Node<K,V>(key, value);
             if (prev == NULL) {
                 table[hashValue] = entry;
             } else {
@@ -90,15 +72,14 @@ public:
         } else {
             entry->value = value;
         }
-        return key;
     }
 
     void print() {
-        Node<V> *entry = nullptr;
+        Node<K,V> *entry = nullptr;
         for (int i = 0; i < TABLE_SIZE; i++) {
             entry = table[i];
             while (entry != NULL) {
-                std::cout << entry->key << "\t" << entry->value << "\n";
+                std::cout << entry->value.id << "\t" << entry->value << "\n";
                 entry = entry->next;
             }
         }
@@ -107,10 +88,10 @@ public:
 
 
 private:
-    Node<V> **table;
-    int lastInsertKey;
+    Node<K,V> **table;
 
-    int hashFunc(int key) {
-        return key % TABLE_SIZE;
+    int hashFunc(K key) {
+        //return key % TABLE_SIZE;
+        return 2;
     }
 };

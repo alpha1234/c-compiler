@@ -1,24 +1,31 @@
 #include "../compiler/compiler.h"
-#include "../compiler/common.h"
 #include "../compiler/HashTable.h"
 #include "../compiler/Token.h"
 #include "../compiler/SymbolTable.h"
+#include "../compiler/lex.h"
 
 using namespace std;
 
-HashMap<SymbolTableRow *> symbolTable;
-
+HashMap<string,SymbolTableRow> symbolTable;
+int lastInsertId = -1;
 
 void insertIntoSymbolTable(Token& token) {
 
+    SymbolTableRow row;
 
-    SymbolTableRow *row = new SymbolTableRow;
-    row->name = s;
-    id = symbolTable.search(row);
-    if (id != -1) {
-       return Token::makeToken(IDENTIFIER, id);
-   }
-   /*
+    bool result = symbolTable.get(token.value.s,row);
+    if (result) {
+        token.value.id = row.id;
+    }
+    else {
+        lastInsertId++;
+        row.id = lastInsertId;
+        row.name = token.value.s;
+        symbolTable.insert(row.name, row);
+    }
+
+/*
+
     skipWhitespaces();
     c = peek(fp,-1);
     if(c == '(') {
@@ -63,27 +70,25 @@ void insertIntoSymbolTable(Token& token) {
         else if(row.type == "float") row.size = sizeof(float);
         else if(row.type == "string") row.size = sizeof(string);
     }
-
 */
-    id = symbolTable.insert(row);
-
-    return Token::makeToken(IDENTIFIER, s);
 }
 
 
 int main() {
     char inputFileName[] = "input.txt";
-    lex_initialize(inputFileName);
-    Token *token;
+    compiler_initialize(inputFileName);
+    Token token;
     while (1) {
         token = getNextToken();
-        if (token->type == TEOF) {
+        if (token.type == TEOF) {
             break;
         }
-        delete token;
+        if(token.type == IDENTIFIER) {
+            insertIntoSymbolTable(token);
+        }
     }
 
-    lex_finalize();
+    compiler_finalize();
 
     cout << "\nID\tName\n";
     symbolTable.print();

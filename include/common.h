@@ -6,17 +6,11 @@ void copyFile(char *, char *);
 
 char next(FILE *);
 
-char prev(FILE *);
-
 void undo(FILE *, char);
 
 void shift(FILE *, int);
 
-void ab(FILE *);
-
 char peek(FILE *,int);
-
-void preprocess(char *, char *);
 
 
 inline bool isWhitespace(int c) {

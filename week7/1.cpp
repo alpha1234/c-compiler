@@ -2,12 +2,13 @@
 #include "../compiler/Token.h"
 #include "../compiler/lex.h"
 #include <initializer_list>
+#include <map>
 
 using namespace std;
 
 void S();
 void DECLARATIONS();
-bool DATA_TYPE();
+void DATA_TYPE();
 void IDENTIFIER_LIST();
 void STATEMENT_LIST();
 void STATEMENT();
@@ -28,8 +29,10 @@ void MULOP();
 
 Token *token;
 
+map<string,vector<int>> FIRST;
 
-bool is_in(const int& val, const std::initializer_list<int>& list) {
+
+bool inArray(int val,vector<int> list) {
     for (const auto& i : list) {
         if (val == i) {
             return true;
@@ -37,7 +40,6 @@ bool is_in(const int& val, const std::initializer_list<int>& list) {
     }
     return false;
 }
-
 
 void next() {
     token = getNextToken();
@@ -75,7 +77,6 @@ void expect(int type) {
 void S() {
     cout<<"S\n";
 
-    next();
     if(accept("main")) {
         expect(OPEN_PAREN);
         expect(CLOSE_PAREN);
@@ -88,7 +89,7 @@ void S() {
 
 void DECLARATIONS() {
     cout<<"DECLARATIONS\n";
-    if(token->type == KEYWORD_INT|| token->type == KEYWORD_CHAR) {
+    if(inArray(token->type,FIRST["DECLARATIONS"])) {
         DATA_TYPE();
         IDENTIFIER_LIST();
         expect(SEMICOLON);
@@ -97,7 +98,8 @@ void DECLARATIONS() {
 }
 
 
-bool DATA_TYPE() {
+
+void DATA_TYPE() {
     cout<<"DATA_TYPE\n";
 
     if(accept(KEYWORD_INT) || accept(KEYWORD_CHAR)) {}
@@ -138,7 +140,7 @@ void IDENTIFIER_LIST() {
 void STATEMENT_LIST() {
     cout<<"STATEMENT_LIST\n";
 
-    if(is_in(token->type,{IDENTIFIER,KEYWORD_IF,KEYWORD_WHILE,KEYWORD_FOR})) {
+    if(inArray(token->type,FIRST["STATEMENT_LIST"])) {
         STATEMENT();
         STATEMENT_LIST();
     }
@@ -155,7 +157,7 @@ void STATEMENT() {
     else if(token->type == KEYWORD_IF) {
         DECISION_STAT();
     }
-    else if(is_in(token->type,{KEYWORD_WHILE,KEYWORD_FOR})) {
+    else if(inArray(token->type,FIRST["STATEMENT"])) {
         LOOPING_STAT();
     }
     else {
@@ -179,8 +181,8 @@ void EXPN() {
 }
 void EPRIME() {
     cout<<"EPRIME\n";
-    if (is_in(token->type, {EQ_EQ,NOT_EQ,LESS_EQ,GREATER_EQ,GREATER,LESS})) {
-        RELOP();
+        if(inArray(token->type,FIRST["EPRIME"])) {
+            RELOP();
         SIMPLE_EXPN();
     }
 }
@@ -194,7 +196,7 @@ void SIMPLE_EXPN() {
 void SEPRIME() {
     cout<<"SEPRIME\n";
 
-    if (is_in(token->type, {PLUS,MINUS})) {
+    if(inArray(token->type,FIRST["SEPRIME"])) {
         ADDOP();
         TERM();
         SEPRIME();
@@ -210,7 +212,7 @@ void TERM() {
 
 void TPRIME() {
     cout<<"TPRIME\n";
-    if (is_in(token->type, {MULT,DIV,MOD})) {
+    if(inArray(token->type,FIRST["TPRIME"])) {
         MULOP();
         FACTOR();
         TPRIME();
@@ -312,9 +314,21 @@ void MULOP() {
 
 
 int main() {
+
+    FIRST = {
+            {"DECLARATIONS", {KEYWORD_INT,KEYWORD_CHAR} },
+            {"TPRIME", {MULT,DIV,MOD}},
+            {"STATEMENT_LIST",{IDENTIFIER,KEYWORD_IF,KEYWORD_WHILE,KEYWORD_FOR}},
+            {"STATEMENT",{KEYWORD_WHILE,KEYWORD_FOR}},
+            {"EPRIME",{EQ_EQ,NOT_EQ,LESS_EQ,GREATER_EQ,GREATER,LESS}},
+            {"SEPRIME",{PLUS,MINUS}},
+            {"TPRIME",{MULT,DIV,MOD}}
+    };
+
     char inputFileName[] = "input.txt";
     lex_initialize(inputFileName);
 
+    next();
     S();
     expect(TEOF);
     cout<< "Success";

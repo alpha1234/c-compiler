@@ -12,16 +12,16 @@ Token *token;
 bool S() {
     cout << "Inside S \n";
     token = getNextToken();
-    if(token->getString() == "a") {
+    if(token->value.s == "a") {
         return true;
     }
-    else if(token->getString() == "->") {
+    else if(token->type == DEREF) {
         return true;
     }
-    else if(token->getChar() == '(') {
+    else if(token->type == OPEN_PAREN) {
         if(T()) {
             token = getNextToken();
-            if (token->getChar() == ')') {
+            if (token->type == CLOSE_PAREN) {
                 return true;
             }
         }
@@ -43,7 +43,7 @@ bool T1() {
     cout << "Inside T1 \n";
 
     token = getNextToken();
-    if(token->getChar() == ',') {
+    if(token->type == COMMA) {
         if(S()) {
             return T1();
         }
@@ -58,8 +58,7 @@ bool T1() {
 
 int main() {
   char inputFileName[] = "input.txt";
-    char outputFileName[] = "output.txt";
-    lex_initialize(inputFileName,outputFileName);
+    lex_initialize(inputFileName);
     if(S()) {
         token = getNextToken();
         if(token->type == TEOF) {

@@ -5,8 +5,9 @@
 using namespace std;
 
 int main() {
-    char inputFileName[] = "data/input.txt";
-    compiler_initialize(inputFileName);
+    char inputFileName[] = "data/input.txt"
+
+    ;compiler_initialize(inputFileName);
     Token token;
     while (1) {
         token = getNextToken();

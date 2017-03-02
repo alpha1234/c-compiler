@@ -210,12 +210,37 @@ Token readIdentifier(char c) {
         }
         s.push_back(c);
     }
-    int index = distance( RESERVED_KEYWORDS.begin(),
+    auto index = distance( RESERVED_KEYWORDS.begin(),
                           find(RESERVED_KEYWORDS.begin(), RESERVED_KEYWORDS.end(), s));
+
     if(index < RESERVED_KEYWORDS.size())
         return Token::makeToken(index);
 
     return Token::makeToken(IDENTIFIER, s);
+}
+
+Token readSpecialSymbol(char c) {
+    tokenBeginLine = line;
+    tokenBeginColumn = column;
+
+    switch(c) {
+        case ',':
+            return Token::makeToken(COMMA);
+        case '(':
+            return Token::makeToken(OPEN_PAREN);
+        case ')':
+            return Token::makeToken(CLOSE_PAREN);
+        case '[':
+            return Token::makeToken(OPEN_SQUARE);
+        case ']':
+            return Token::makeToken(CLOSE_SQUARE);
+        case '{':
+            return Token::makeToken(OPEN_BRACE);
+        case '}':
+            return Token::makeToken(CLOSE_BRACE);
+        case ';':
+            return Token::makeToken(SEMICOLON);
+    }
 }
 
 void skipWhitespaces() {
@@ -241,52 +266,51 @@ Token temp() {
     skipWhitespaces();
     filePointerLocation = ftell(fp);
 
-    char c = next(fp);
-    switch (c) {
-        case '\n':line++;column = 0;
-            c = next(fp);
-        case '-':
-        case '+':
-        case '!':
-        case '~':
-        case '/':
-        case '%':
-        case '<':
-        case '>':
-        case '=':
-        case '*':
-            return readOperator(c);
-        case '0' ... '9':
-            return readNumber(c);
-        case '"':
-            return readStringLiteral();
-        case '\'' :
-            return readChar();
+    char c;
+    while(true) {
+        c = next(fp);
+        switch (c) {
+            case '\n':
+                line++;
+                column = 0;
+                continue;
+            case '-':
+            case '+':
+            case '!':
+            case '~':
+            case '/':
+            case '%':
+            case '<':
+            case '>':
+            case '=':
+            case '*':
+                return readOperator(c);
+            case '0' ... '9':
+                return readNumber(c);
+            case '"':
+                return readStringLiteral();
+            case '\'' :
+                return readChar();
 
-        case 'a' ... 'z':
-        case 'A' ... 'Z':
-        case '_':
-            return readIdentifier(c);
+            case 'a' ... 'z':
+            case 'A' ... 'Z':
+            case '_':
+                return readIdentifier(c);
 
-        case ',':
-            return Token::makeToken(COMMA);
-        case '(':
-            return Token::makeToken(OPEN_PAREN);
-        case ')':
-            return Token::makeToken(CLOSE_PAREN);
-        case '[':
-            return Token::makeToken(OPEN_SQUARE);
-        case ']':
-            return Token::makeToken(CLOSE_SQUARE);
-        case '{':
-            return Token::makeToken(OPEN_BRACE);
-        case '}':
-            return Token::makeToken(CLOSE_BRACE);
-        case ';':
-            return Token::makeToken(SEMICOLON);
+            case ',':
+            case '(':
+            case ')':
+            case '[':
+            case ']':
+            case '{':
+            case '}':
+            case ';':
+                return readSpecialSymbol(c);
 
-        case EOF:
-            return Token::makeToken(TEOF);
+            case EOF:
+                return Token::makeToken(TEOF);
+        }
+        break;
     }
     return Token::makeToken(INVALID, c);
 }

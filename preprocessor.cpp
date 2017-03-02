@@ -77,7 +77,7 @@ void processIncludes(const char inputFileName[],const char outputFileName[]) {
             isPreviousNonSpaceNewline = true;
         }
         if (isPreviousNonSpaceNewline) {
-            if (!isWhitespace(c)) {
+            if (!isWhitespace(c) && c != '\n') {
                 isPreviousNonSpaceNewline = false;
             }
             if (c == '#') {

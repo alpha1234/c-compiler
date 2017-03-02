@@ -8,6 +8,7 @@ FILE *fp,*tokensOutput;
 int filePointerLocation;
 extern int line;
 extern int column;
+int tokenBeginColumn,tokenBeginLine;
 
 
 const vector <std::string> RESERVED_KEYWORDS = {
@@ -23,6 +24,9 @@ const vector <std::string> RESERVED_KEYWORDS = {
 
 
 Token readOperator(char c) {
+    tokenBeginLine = line;
+    tokenBeginColumn = column;
+
     switch (c) {
         case '-':
             c = next(fp);
@@ -121,6 +125,8 @@ Token readOperator(char c) {
 }
 
 Token readNumber(char c) {
+    tokenBeginLine = line;
+    tokenBeginColumn = column;
     string num;
     num.push_back(c);
     while (1) {
@@ -159,6 +165,9 @@ char readEscapedChar() {
 }
 
 Token readStringLiteral() {
+    tokenBeginLine = line;
+    tokenBeginColumn = column;
+
     string s;
     char c = next(fp);
     char prev = 0;
@@ -174,6 +183,8 @@ Token readStringLiteral() {
 }
 
 Token readChar() {
+    tokenBeginLine = line;
+    tokenBeginColumn = column;
     char c = next(fp);
     if (c == '\\') {
         c = readEscapedChar();
@@ -184,6 +195,8 @@ Token readChar() {
 
 
 Token readIdentifier(char c) {
+    tokenBeginLine = line;
+    tokenBeginColumn = column;
     string s;
     s.push_back(c);
 
@@ -214,7 +227,7 @@ void skipWhitespaces() {
         }
         if(c == '\n') {
             line++;
-            column = 1;
+            column = 0;
         }
         else if(c == '\t') {
             column += 3;   //Don't increment by 4.next() function will increment by 1. 
@@ -230,6 +243,8 @@ Token temp() {
 
     char c = next(fp);
     switch (c) {
+        case '\n':line++;column = 0;
+            c = next(fp);
         case '-':
         case '+':
         case '!':
@@ -278,8 +293,8 @@ Token temp() {
 
 Token getNextToken() {
     Token t = temp();
-    t.line = line;
-    t.column = column;
+    t.line = tokenBeginLine;
+    t.column = tokenBeginColumn;
     fputs(t.getFormatted().c_str(), tokensOutput);
     fputc('\n',tokensOutput);
     return t;

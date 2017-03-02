@@ -8,7 +8,7 @@ int line,column;
 
 FILE *openFile(const char * fileName, const char *mode) {
     FILE *fp = fopen(fileName, mode);
-    column = 1;
+    column = 0;
     line = 1;
     if (fp == NULL) {
         cout << "Could not open file:" << fileName;

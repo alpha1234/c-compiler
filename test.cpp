@@ -13,6 +13,7 @@ int main() {
         if (token.type == TEOF) {
             break;
         }
+        cout<<token.getFormatted()<<"\n";
     }
 
     compiler_finalize();

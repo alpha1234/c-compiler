@@ -73,7 +73,7 @@ struct Token {
             default: stream << value.s;
         }
      
-        stream << '>';
+        stream << ','<<line<<','<<column<<'>';
         return stream.str();
     }
     static Token makeToken(int type) {

@@ -14,7 +14,7 @@ char peek(FILE *,int);
 
 
 inline bool isWhitespace(int c) {
-    return c == ' ' || c == '\n' || c == '\t' || c == '\f' || c == '\v';
+    return c == ' ' || c == '\t' || c == '\f' || c == '\v';
 }
 
 inline bool isAlphabet(char c) {

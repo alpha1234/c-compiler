@@ -2,11 +2,13 @@
 #include "include/preprocessor.h"
 #include "include/lex.h"
 
-
+using namespace std;
 
 void compiler_initialize(char *inputFileName) {
-    removeComments(inputFileName,TEMPFILE);
-    processIncludes(inputFileName,TEMPFILE);
+    string tempFile = tmpnam(nullptr);
+    removeComments(inputFileName,tempFile.c_str());
+
+    processIncludes(tempFile.c_str(),TEMPFILE);
 
     lex_initialize(TEMPFILE);
 }

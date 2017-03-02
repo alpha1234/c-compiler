@@ -136,20 +136,6 @@ Token readNumber(char c) {
 }
 
 
-Token readStringLiteral() {
-    string s;
-    char c = next(fp);
-    while (c != '"') {
-        if (c == EOF) {
-            cout << "Unclosed double quote";
-            exit(1);
-        }
-        s.push_back(c);
-        c = next(fp);
-    }
-    return Token::makeToken(STRING, s);
-}
-
 char readEscapedChar() {
     switch (next(fp)) {
         case 'a':
@@ -172,11 +158,24 @@ char readEscapedChar() {
     return 0;
 }
 
+Token readStringLiteral() {
+    string s;
+    char c = next(fp);
+    char prev = 0;
+    while (c != '"' || prev == '\\') {
+        if(c == '\\') {
+            c = readEscapedChar();
+        }
+        s.push_back(c);
+        c = next(fp);
+        prev = c;
+    }
+    return Token::makeToken(STRING, s);
+}
 
 Token readChar() {
     char c = next(fp);
     if (c == '\\') {
-        /* Escaped Char */
         c = readEscapedChar();
     }
     next(fp);
@@ -208,9 +207,7 @@ Token readIdentifier(char c) {
 
 void skipWhitespaces() {
     char c;
-    while (c = next(fp)) {
-        if (c == EOF)
-            break;
+    while ((c = next(fp)) != EOF) {
         if (!isWhitespace(c)) {
             shift(fp, -1);
             break;

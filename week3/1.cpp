@@ -2,8 +2,6 @@
 #include "../include/Token.h"
 #include "../include/lex.h"
 
-#include "../common.cpp"
-
 using namespace std;
 
 int main() {
@@ -15,15 +13,13 @@ int main() {
 		if (token.type == TEOF) {
 			break;
 		}
-		if(token.type == IDENTIFIER) {
-			insertIntoSymbolTable(token);
+		if(token.type < 32) {
+			cout<<TYPE_MAPPING[token.type];
 		}
 	}
 
 	compiler_finalize();
 
-	cout << "\nID\tName\n";
-	symbolTable.print();
 
 	return 0;
 

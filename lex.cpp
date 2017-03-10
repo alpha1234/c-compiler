@@ -1,3 +1,7 @@
+/*
+ * TODO Concatenate adjacent string literals
+ */
+
 #include "include/compiler.h"
 #include "include/common.h"
 #include "include/Token.h"
@@ -22,12 +26,159 @@ const vector <std::string> RESERVED_KEYWORDS = {
 };
 
 
+Token readNumber(char c) {
+    tokenBeginLine = line;
+    tokenBeginColumn = column;
+    string num;
+    num.push_back(c);
+    c = next(fp);
+    while((isDigit(c) || c == '.') && c != EOF) {
+        num.push_back(c);
+        c = next(fp);
+    }
+    shift(fp,-1);
 
-Token readOperator(char c) {
+    return Token::makeToken(NUMBER, atoi(num.c_str()));
+}
+
+
+char readEscapedChar() {
+    switch (next(fp)) {
+        case 'a':
+            return '\a';
+        case 'b':
+            return '\b';
+        case 'f':
+            return '\f';
+        case 'n':
+            return '\n';
+        case 'r':
+            return '\r';
+        case 't':
+            return '\t';
+        case 'v':
+            return '\v';
+        case '\\':
+            return '\\';
+    }
+}
+
+Token readStringLiteral() {
     tokenBeginLine = line;
     tokenBeginColumn = column;
 
+    string s;
+    char c = next(fp);
+    char prev = 0;
+    while (c != '"' || prev == '\\') {
+        if(c == '\\') {
+            c = readEscapedChar();
+        }
+        s.push_back(c);
+        c = next(fp);
+        prev = c;
+    }
+    return Token::makeToken(STRING, s);
+}
+
+Token readChar() {
+    tokenBeginLine = line;
+    tokenBeginColumn = column;
+    char c = next(fp);
+    if (c == '\\') {
+        c = readEscapedChar();
+    }
+    next(fp);
+    return Token::makeToken(CHAR, c);
+}
+
+
+Token readIdentifier(char c) {
+    tokenBeginLine = line;
+    tokenBeginColumn = column;
+    string s;
+    s.push_back(c);
+
+    while ((c = next(fp))) {
+        if (c == EOF) {
+            break;
+        }
+        if (!(isAlphabet(c) || isDigit(c) || c == '_')) {
+            shift(fp, -1);
+            break;
+        }
+        s.push_back(c);
+    }
+    auto index = distance( RESERVED_KEYWORDS.begin(),
+                          find(RESERVED_KEYWORDS.begin(), RESERVED_KEYWORDS.end(), s));
+
+    if(index < RESERVED_KEYWORDS.size())
+        return Token::makeToken(index);
+
+    return Token::makeToken(IDENTIFIER, s);
+}
+
+
+void skipWhitespaces() {
+    char c;
+    while ((c = next(fp)) != EOF) {
+        if (!isWhitespace(c)) {
+            shift(fp, -1);
+            break;
+        }
+        if(c == '\t') {
+            column += 3;   //Don't increment by 4. next() function will increment by 1.
+        }
+    }
+}
+
+
+
+Token temp() {
+    filePointerLocation = ftell(fp);
+
+    char c;
+    skipWhitespaces();
+    c = next(fp);
+    tokenBeginLine = line;
+    tokenBeginColumn = column;
+    cout<<"h1 \n";
     switch (c) {
+        case '\n':
+            line++;
+            column = 0;
+            return temp();
+
+        case '0' ... '9':
+            return readNumber(c);
+        case '"':
+            return readStringLiteral();
+        case '\'' :
+            return readChar();
+
+        case 'a' ... 'z':
+        case 'A' ... 'Z':
+        case '_':
+            cout<<"h2 \n";
+            return readIdentifier(c);
+
+        case ',':
+            return Token::makeToken(COMMA);
+        case '(':
+            return Token::makeToken(OPEN_PAREN);
+        case ')':
+            return Token::makeToken(CLOSE_PAREN);
+        case '[':
+            return Token::makeToken(OPEN_SQUARE);
+        case ']':
+            return Token::makeToken(CLOSE_SQUARE);
+        case '{':
+            return Token::makeToken(OPEN_BRACE);
+        case '}':
+            return Token::makeToken(CLOSE_BRACE);
+        case ';':
+            return Token::makeToken(SEMICOLON);
+
         case '-':
             c = next(fp);
             if (c == '>') return Token::makeToken(DEREF);
@@ -120,197 +271,17 @@ Token readOperator(char c) {
                 shift(fp, -1);
                 return Token::makeToken(EQ);
             }
-    }
-    return Token();
-}
+        case '&':
+            c = next(fp);
+            if (c == '&') return Token::makeToken(AND_AND);
+            if (c == '=') return Token::makeToken(AND_EQ);
 
-Token readNumber(char c) {
-    tokenBeginLine = line;
-    tokenBeginColumn = column;
-    string num;
-    num.push_back(c);
-    while (1) {
-        c = next(fp);
-        if (c >= '0' && c <= '9') {
-            num.push_back(c);
-        } else {
-            shift(fp,-1);
-            break;
-        }
-    }
-    return Token::makeToken(NUMBER, atoi(num.c_str()));
-}
-
-
-char readEscapedChar() {
-    switch (next(fp)) {
-        case 'a':
-            return '\a';
-        case 'b':
-            return '\b';
-        case 'f':
-            return '\f';
-        case 'n':
-            return '\n';
-        case 'r':
-            return '\r';
-        case 't':
-            return '\t';
-        case 'v':
-            return '\v';
-        case '\\':
-            return '\\';
-    }
-    return 0;
-}
-
-Token readStringLiteral() {
-    tokenBeginLine = line;
-    tokenBeginColumn = column;
-
-    string s;
-    char c = next(fp);
-    char prev = 0;
-    while (c != '"' || prev == '\\') {
-        if(c == '\\') {
-            c = readEscapedChar();
-        }
-        s.push_back(c);
-        c = next(fp);
-        prev = c;
-    }
-    return Token::makeToken(STRING, s);
-}
-
-Token readChar() {
-    tokenBeginLine = line;
-    tokenBeginColumn = column;
-    char c = next(fp);
-    if (c == '\\') {
-        c = readEscapedChar();
-    }
-    next(fp);
-    return Token::makeToken(CHAR, c);
-}
-
-
-Token readIdentifier(char c) {
-    tokenBeginLine = line;
-    tokenBeginColumn = column;
-    string s;
-    s.push_back(c);
-
-    while ((c = next(fp))) {
-        if (c == EOF) {
-            break;
-        }
-        if (!(isAlphabet(c) || isDigit(c) || c == '_')) {
             shift(fp, -1);
-            break;
-        }
-        s.push_back(c);
-    }
-    auto index = distance( RESERVED_KEYWORDS.begin(),
-                          find(RESERVED_KEYWORDS.begin(), RESERVED_KEYWORDS.end(), s));
-
-    if(index < RESERVED_KEYWORDS.size())
-        return Token::makeToken(index);
-
-    return Token::makeToken(IDENTIFIER, s);
-}
-
-Token readSpecialSymbol(char c) {
-    tokenBeginLine = line;
-    tokenBeginColumn = column;
-
-    switch(c) {
-        case ',':
-            return Token::makeToken(COMMA);
-        case '(':
-            return Token::makeToken(OPEN_PAREN);
-        case ')':
-            return Token::makeToken(CLOSE_PAREN);
-        case '[':
-            return Token::makeToken(OPEN_SQUARE);
-        case ']':
-            return Token::makeToken(CLOSE_SQUARE);
-        case '{':
-            return Token::makeToken(OPEN_BRACE);
-        case '}':
-            return Token::makeToken(CLOSE_BRACE);
-        case ';':
-            return Token::makeToken(SEMICOLON);
-    }
-}
-
-void skipWhitespaces() {
-    char c;
-    while ((c = next(fp)) != EOF) {
-        if (!isWhitespace(c)) {
-            shift(fp, -1);
-            break;
-        }
-        if(c == '\n') {
-            line++;
-            column = 0;
-        }
-        else if(c == '\t') {
-            column += 3;   //Don't increment by 4.next() function will increment by 1. 
-        }
-    }
-}
+            return Token::makeToken(LESS);
 
 
-
-Token temp() {
-    skipWhitespaces();
-    filePointerLocation = ftell(fp);
-
-    char c;
-    while(true) {
-        c = next(fp);
-        switch (c) {
-            case '\n':
-                line++;
-                column = 0;
-                continue;
-            case '-':
-            case '+':
-            case '!':
-            case '~':
-            case '/':
-            case '%':
-            case '<':
-            case '>':
-            case '=':
-            case '*':
-                return readOperator(c);
-            case '0' ... '9':
-                return readNumber(c);
-            case '"':
-                return readStringLiteral();
-            case '\'' :
-                return readChar();
-
-            case 'a' ... 'z':
-            case 'A' ... 'Z':
-            case '_':
-                return readIdentifier(c);
-
-            case ',':
-            case '(':
-            case ')':
-            case '[':
-            case ']':
-            case '{':
-            case '}':
-            case ';':
-                return readSpecialSymbol(c);
-
-            case EOF:
-                return Token::makeToken(TEOF);
-        }
-        break;
+        case EOF:
+            return Token::makeToken(TEOF);
     }
     return Token::makeToken(INVALID, c);
 }

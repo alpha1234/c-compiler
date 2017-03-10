@@ -2,7 +2,7 @@
 
 #include "Token.h"
 
-Token getNextToken();
+Token* getNextToken();
 void lex_initialize(const char *);
 void lex_finalize();
-void undoTokenGet();
+void ungetToken();

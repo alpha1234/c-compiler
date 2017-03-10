@@ -1,7 +1,7 @@
 CFLAGS=-std=c++14 -g
 CXX_FLAGS = $(CFLAGS)
 CC=g++
-BIN=main
+BIN=compiler
 
 BUILD_DIR = ./build
 

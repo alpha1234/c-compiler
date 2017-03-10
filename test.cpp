@@ -8,13 +8,13 @@ int main() {
     char inputFileName[] = "data/input.txt";
 
     compiler_initialize(inputFileName);
-    Token token;
+    Token* token;
     while (1) {
         token = getNextToken();
-        if (token.type == TEOF) {
+        if (token->type == TEOF) {
             break;
         }
-        cout<<token.getFormatted()<<"\n";
+        cout<<token->getFormatted()<<"\n";
     }
 
     compiler_finalize();

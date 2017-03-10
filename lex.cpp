@@ -1,7 +1,3 @@
-/*
- * TODO Concatenate adjacent string literals
- */
-
 #include "include/compiler.h"
 #include "include/common.h"
 #include "include/Token.h"
@@ -12,7 +8,6 @@ FILE *fp,*tokensOutput;
 int filePointerLocation;
 extern int line;
 extern int column;
-int tokenBeginColumn,tokenBeginLine;
 
 
 const vector <std::string> RESERVED_KEYWORDS = {
@@ -26,19 +21,20 @@ const vector <std::string> RESERVED_KEYWORDS = {
 };
 
 
-Token readNumber(char c) {
-    tokenBeginLine = line;
-    tokenBeginColumn = column;
+
+void readNumber(Token* token,char c) {
     string num;
     num.push_back(c);
-    c = next(fp);
-    while((isDigit(c) || c == '.') && c != EOF) {
-        num.push_back(c);
-        c = next(fp);
+    while ((c = next(fp)) != EOF) {
+        if (isDigit(c) || c == '.') {
+            num.push_back(c);
+        } else {
+            shift(fp, -1);
+            break;
+        }
     }
-    shift(fp,-1);
-
-    return Token::makeToken(NUMBER, atoi(num.c_str()));
+    token->type = NUMBER;
+    token->value.number = atoi(num.c_str());
 }
 
 
@@ -63,239 +59,270 @@ char readEscapedChar() {
     }
 }
 
-Token readStringLiteral() {
-    tokenBeginLine = line;
-    tokenBeginColumn = column;
-
+void readString(Token * token) {
     string s;
-    char c = next(fp);
-    char prev = 0;
-    while (c != '"' || prev == '\\') {
-        if(c == '\\') {
+    char c, prev = 0;
+    while ((c = next(fp)) != EOF) {
+        if (c == '"' && prev != '\\') {
+            break;
+        }
+        if (c == '\\') {
             c = readEscapedChar();
         }
         s.push_back(c);
-        c = next(fp);
         prev = c;
     }
-    return Token::makeToken(STRING, s);
+    token->type = STRING;
+    token->value.s = s;
 }
 
-Token readChar() {
-    tokenBeginLine = line;
-    tokenBeginColumn = column;
+void readChar(Token * token) {
     char c = next(fp);
     if (c == '\\') {
         c = readEscapedChar();
     }
-    next(fp);
-    return Token::makeToken(CHAR, c);
+    next(fp); //TODO Char Literal without closing single quote
+    token->type = CHAR;
+    token->value.c = c;
 }
 
 
-Token readIdentifier(char c) {
-    tokenBeginLine = line;
-    tokenBeginColumn = column;
+void readIdentifier(Token * token,char c) {
     string s;
     s.push_back(c);
 
-    while ((c = next(fp))) {
-        if (c == EOF) {
-            break;
-        }
-        if (!(isAlphabet(c) || isDigit(c) || c == '_')) {
+    while ((c = next(fp)) != EOF) {
+        if (isAlphabet(c) || isDigit(c) || c == '_') {
+            s.push_back(c);
+        } else {
             shift(fp, -1);
             break;
         }
-        s.push_back(c);
     }
-    auto index = distance( RESERVED_KEYWORDS.begin(),
+    auto index = distance(RESERVED_KEYWORDS.begin(),
                           find(RESERVED_KEYWORDS.begin(), RESERVED_KEYWORDS.end(), s));
 
-    if(index < RESERVED_KEYWORDS.size())
-        return Token::makeToken(index);
-
-    return Token::makeToken(IDENTIFIER, s);
+    if (index < RESERVED_KEYWORDS.size()) {
+        token->type = index;
+    } else {
+        token->type = IDENTIFIER;
+        token->value.s = s;
+    }
 }
 
 
 void skipWhitespaces() {
     char c;
     while ((c = next(fp)) != EOF) {
-        if (!isWhitespace(c)) {
+        if (!isWhitespace(c) && c != '\n') {
             shift(fp, -1);
             break;
         }
-        if(c == '\t') {
-            column += 3;   //Don't increment by 4. next() function will increment by 1.
+        if(c == '\n') {
+            line++;
+            column = 0;
+        }
+        else if(c == '\t') {
+            column += 3;   //Don't increment by 4.next() function will increment by 1. 
         }
     }
 }
 
 
 
-Token temp() {
+Token* getNextToken() {
+    skipWhitespaces();
     filePointerLocation = ftell(fp);
 
-    char c;
-    skipWhitespaces();
-    c = next(fp);
-    tokenBeginLine = line;
-    tokenBeginColumn = column;
-    cout<<"h1 \n";
+    char c = next(fp);
+    Token *token = new Token;
+    token->line = line;
+    token->column = column;
+
     switch (c) {
-        case '\n':
-            line++;
-            column = 0;
-            return temp();
+        case ',':
+            token->type = COMMA;
+            break;
+        case '(':
+            token->type = OPEN_PAREN;
+            break;
+        case ')':
+            token->type = CLOSE_PAREN;
+            break;
+        case '[':
+            token->type = OPEN_SQUARE;
+            break;
+        case ']':
+            token->type = CLOSE_SQUARE;
+            break;
+        case '{':
+            token->type = OPEN_BRACE;
+            break;
+        case '}':
+            token->type = CLOSE_BRACE;
+            break;
+        case ';':
+            token->type = SEMICOLON;
+            break;
 
         case '0' ... '9':
-            return readNumber(c);
+            readNumber(token, c);
+            break;
+
         case '"':
-            return readStringLiteral();
+            readString(token);
+            break;
+
         case '\'' :
-            return readChar();
+            readChar(token);
+            break;
 
         case 'a' ... 'z':
         case 'A' ... 'Z':
         case '_':
-            cout<<"h2 \n";
-            return readIdentifier(c);
+            readIdentifier(token, c);
+            break;
 
-        case ',':
-            return Token::makeToken(COMMA);
-        case '(':
-            return Token::makeToken(OPEN_PAREN);
-        case ')':
-            return Token::makeToken(CLOSE_PAREN);
-        case '[':
-            return Token::makeToken(OPEN_SQUARE);
-        case ']':
-            return Token::makeToken(CLOSE_SQUARE);
-        case '{':
-            return Token::makeToken(OPEN_BRACE);
-        case '}':
-            return Token::makeToken(CLOSE_BRACE);
-        case ';':
-            return Token::makeToken(SEMICOLON);
 
         case '-':
             c = next(fp);
-            if (c == '>') return Token::makeToken(DEREF);
-            else if (c == '-') return Token::makeToken(MINUS_MINUS);
-            else if (c == '=') return Token::makeToken(MINUS_EQ);
-            else {
+            if (c == '>') {
+                token->type = DEREF;
+            } else if (c == '-') {
+                token->type = MINUS_MINUS;
+            } else if (c == '=') {
+                token->type = MINUS_EQ;
+            } else {
                 shift(fp, -1);
-                return Token::makeToken(MINUS);
+                token->type = MINUS;
             }
+            break;
         case '+':
             c = next(fp);
-            if (c == '+') return Token::makeToken(PLUS_PLUS);
-            else if (c == '=') return Token::makeToken(PLUS_EQ);
-            else {
+            if (c == '+') {
+                token->type = PLUS_PLUS;
+            } else if (c == '=') {
+                token->type = PLUS_EQ;
+            } else {
                 shift(fp, -1);
-                return Token::makeToken(PLUS);
+                token->type = PLUS;
             }
+            break;
         case '!':
             c = next(fp);
-            if (c == '=') return Token::makeToken(NOT_EQ);
-            else {
+            if (c == '=') {
+                token->type = NOT_EQ;
+            } else {
                 shift(fp, -1);
-                return Token::makeToken(NOT);
+                token->type = NOT;
             }
+            break;
         case '~':
-            return Token::makeToken(COMPL);
+            token->type = COMPL;
+            break;
 
         case '/':
             c = next(fp);
-            if (c == '=') return Token::makeToken(DIV_EQ);
-
-            else {
+            if (c == '=') {
+                token->type = DIV_EQ;
+            } else {
                 shift(fp, -1);
-                return Token::makeToken(DIV);
+                token->type = DIV;
             }
+            break;
+
         case '*':
             c = next(fp);
-            if (c == '=') return Token::makeToken(MULT_EQ);
-
-            else {
+            if (c == '=') {
+                token->type = MULT_EQ;
+            } else {
                 shift(fp, -1);
-                return Token::makeToken(MULT);
+                token->type = MULT;
             }
+            break;
+
         case '%':
             c = next(fp);
-            if (c == '=') return Token::makeToken(MOD_EQ);
-
-            else {
+            if (c == '=') {
+                token->type = MOD_EQ;
+            } else {
                 shift(fp, -1);
-                return Token::makeToken(MOD);
+                token->type = MOD;
             }
+            break;
+
         case '<':
             c = next(fp);
             if (c == '<') {
                 c = next(fp);
-                if (c == '=') return Token::makeToken(LSHIFT_EQ);
-
-                else {
+                if (c == '=') {
+                    token->type = LSHIFT_EQ;
+                } else {
                     shift(fp, -1);
-                    return Token::makeToken(LSHIFT);
+                    token->type = LSHIFT;
                 }
-            } else if (c == '=') return Token::makeToken(LESS_EQ);
-
-            else {
+            } else if (c == '=') {
+                token->type = LESS_EQ;
+            } else {
                 shift(fp, -1);
-                return Token::makeToken(LESS);
+                token->type = LESS;
             }
+            break;
+
 
         case '>':
             c = next(fp);
             if (c == '>') {
                 c = next(fp);
-                if (c == '=') return Token::makeToken(RSHIFT_EQ);
-
-                else {
+                if (c == '=') {
+                    token->type = RSHIFT_EQ;
+                } else {
                     shift(fp, -1);
-                    return Token::makeToken(RSHIFT);
+                    token->type = RSHIFT;
                 }
-            } else if (c == '=') return Token::makeToken(GREATER_EQ);
-
-            else {
+            } else if (c == '=') {
+                token->type = GREATER_EQ;
+            } else {
                 shift(fp, -1);
-                return Token::makeToken(GREATER);
+                token->type = GREATER;
             }
+            break;
+
         case '=':
             c = next(fp);
-            if (c == '=') return Token::makeToken(EQ_EQ);
-
-            else {
+            if (c == '=') {
+                token->type = EQ_EQ;
+            } else {
                 shift(fp, -1);
-                return Token::makeToken(EQ);
+                token->type = EQ;
             }
+            break;
+
         case '&':
             c = next(fp);
-            if (c == '&') return Token::makeToken(AND_AND);
-            if (c == '=') return Token::makeToken(AND_EQ);
-
-            shift(fp, -1);
-            return Token::makeToken(LESS);
+            if (c == '&') {
+                token->type = AND_AND;
+            } else if (c == '=') {
+                token->type = AND_EQ;
+            } else {
+                shift(fp, -1);
+                token->type = LESS;
+            }
+            break;
 
 
         case EOF:
-            return Token::makeToken(TEOF);
+            token->type = TEOF;
+            break;
     }
-    return Token::makeToken(INVALID, c);
-}
 
-Token getNextToken() {
-    Token t = temp();
-    t.line = tokenBeginLine;
-    t.column = tokenBeginColumn;
-    fputs(t.getFormatted().c_str(), tokensOutput);
+    fputs(token->getFormatted().c_str(), tokensOutput);
     fputc('\n',tokensOutput);
-    return t;
+    return token;
 }
 
-void undoTokenGet() {
+
+void ungetToken() {
     fseek ( fp , filePointerLocation , SEEK_SET );
 }
 

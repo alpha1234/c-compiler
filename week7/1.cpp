@@ -27,14 +27,14 @@ void RELOP();
 void ADDOP();
 void MULOP();
 
-Token token;
+Token *token;
 
 map<string,vector<int>> FIRST;
 
 bool errorFound = false;
 
-bool inFirst(Token token,string name) {
-    return find(FIRST[name].begin(), FIRST[name].end(), token.type) != FIRST[name].end();
+bool inFirst(Token *token,string name) {
+    return find(FIRST[name].begin(), FIRST[name].end(), token->type) != FIRST[name].end();
 
 }
 
@@ -43,13 +43,13 @@ void next() {
 }
 
 void error(string message) {
-    cout<<"\nERROR on line "<<token.line<<" column "<<token.column<<"\n";
-    cout<<"Expected: "<<message<<" Found: "<<token.getFormatted()<<"\n";
+    cout<<"\nERROR on line "<<token->line<<" column "<<token->column<<"\n";
+    cout<<"Expected: "<<message<<" Found: "<<token->getFormatted()<<"\n";
     errorFound = true;
 }
 
 bool accept(int type) {
-    if (token.type == type) {
+    if (token->type == type) {
         next();
         return true;
     }
@@ -57,7 +57,7 @@ bool accept(int type) {
 }
 
 bool accept(string s) {
-    if (token.value.s == s) {
+    if (token->value.s == s) {
         next();
         return true;
     }
@@ -73,7 +73,7 @@ void expect(int type) {
 
 
 void S() {
-   // cout<<"S\n";
+    // cout<<"S\n";
 
     if(accept("main")) {
         expect(OPEN_PAREN);
@@ -98,7 +98,7 @@ void DECLARATIONS() {
 
 
 void DATA_TYPE() {
-   // cout<<"DATA_TYPE\n";
+    // cout<<"DATA_TYPE\n";
 
     if(!(accept(KEYWORD_INT) || accept(KEYWORD_CHAR))) {
         error("int or char");
@@ -133,7 +133,7 @@ void IDENTIFIER_LIST() {
 
 
 void STATEMENT_LIST() {
-   // cout<<"STATEMENT_LIST\n";
+    // cout<<"STATEMENT_LIST\n";
 
     if(inFirst(token,"STATEMENT_LIST")) {
         STATEMENT();
@@ -145,11 +145,11 @@ void STATEMENT_LIST() {
 void STATEMENT() {
     //cout<<"STATEMENT\n";
 
-    if(token.type == IDENTIFIER) {
+    if(token->type == IDENTIFIER) {
         ASSIGN_STAT();
         expect(SEMICOLON);
     }
-    else if(token.type == KEYWORD_IF) {
+    else if(token->type == KEYWORD_IF) {
         DECISION_STAT();
     }
     else if(inFirst(token,"STATEMENT")) {
@@ -177,27 +177,27 @@ void ASSIGN_STAT() {
 }
 
 void EXPN() {
-   // cout<<"EXPN\n";
+    // cout<<"EXPN\n";
 
     SIMPLE_EXPN();
     EPRIME();
 }
 void EPRIME() {
-   // cout<<"EPRIME\n";
-        if(inFirst(token,"EPRIME")) {
-            RELOP();
+    // cout<<"EPRIME\n";
+    if(inFirst(token,"EPRIME")) {
+        RELOP();
         SIMPLE_EXPN();
     }
 }
 
 void SIMPLE_EXPN() {
-   // cout<<"SIMPLE_EXPN\n";
+    // cout<<"SIMPLE_EXPN\n";
 
     TERM();
     SEPRIME();
 }
 void SEPRIME() {
-   // cout<<"SEPRIME\n";
+    // cout<<"SEPRIME\n";
 
     if(inFirst(token,"SEPRIME")) {
         ADDOP();
@@ -207,14 +207,14 @@ void SEPRIME() {
 }
 
 void TERM() {
-   // cout<<"TERM\n";
+    // cout<<"TERM\n";
 
     FACTOR();
     TPRIME();
 }
 
 void TPRIME() {
-  //  cout<<"TPRIME\n";
+    //  cout<<"TPRIME\n";
     if(inFirst(token,"TPRIME")) {
         MULOP();
         FACTOR();
@@ -223,13 +223,13 @@ void TPRIME() {
 }
 
 void FACTOR() {
-   // cout<<"FACTOR\n";
+    // cout<<"FACTOR\n";
     if(!(accept(IDENTIFIER) || accept(NUMBER))) {
         error("IDENTIFIER OR NUMBER");
     }
 }
 void DECISION_STAT() {
-   // cout<<"DECISION_STAT\n";
+    // cout<<"DECISION_STAT\n";
 
     expect(KEYWORD_IF);
     expect(OPEN_PAREN);
@@ -241,7 +241,7 @@ void DECISION_STAT() {
     DPRIME();
 }
 void DPRIME() {
-   // cout<<"DPRIME\n";
+    // cout<<"DPRIME\n";
 
     if(accept(KEYWORD_ELSE)) {
         expect(OPEN_BRACE);
@@ -251,7 +251,7 @@ void DPRIME() {
 }
 
 void LOOPING_STAT() {
-   // cout<<"LOOPING_STAT\n";
+    // cout<<"LOOPING_STAT\n";
     if(accept(KEYWORD_WHILE)) {
         expect(OPEN_PAREN);
         EXPN();
@@ -282,8 +282,8 @@ void LOOPING_STAT() {
 void RELOP() {
     //cout<<"RELOP\n";
     if (!(accept(EQ_EQ) || accept(NOT_EQ) || accept(LESS_EQ) ||
-        accept(GREATER_EQ) || accept(GREATER) || accept(LESS) ||
-        accept(EQ_EQ) || accept(NOT_EQ))) {
+          accept(GREATER_EQ) || accept(GREATER) || accept(LESS) ||
+          accept(EQ_EQ) || accept(NOT_EQ))) {
         error("==,!=,<=,>=,>,<,==,!=");
     }
 

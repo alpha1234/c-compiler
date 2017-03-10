@@ -7,46 +7,47 @@ using namespace std;
 
 struct production {
     string lhs;
-    vector<vector<string>> rhs;
+    vector <vector<string>> rhs;
 };
 typedef struct production Production;
 
-void printGrammar(vector<Production>& grammar) {
-        for(int i = 0;i<grammar.size();i++) {
-            cout<<grammar[i].lhs<< " -> ";
-            for(int j = 0;j<grammar[i].rhs.size();j++) {
-                for(int k = 0;k<grammar[i].rhs[j].size();k++) {
-                    cout<<grammar[i].rhs[j][k];
-                }
-                if(j != grammar[i].rhs.size() - 1) {
-                    cout << " | ";
-                }
+void printGrammar(vector <Production> &grammar) {
+    for (int i = 0; i < grammar.size(); i++) {
+        cout << grammar[i].lhs << " -> ";
+        for (int j = 0; j < grammar[i].rhs.size(); j++) {
+            for (int k = 0; k < grammar[i].rhs[j].size(); k++) {
+                cout << grammar[i].rhs[j][k];
             }
-            cout<<"\n";
+            if (j != grammar[i].rhs.size() - 1) {
+                cout << " | ";
+            }
+        }
+        cout << "\n";
     }
 }
 
 
 int isLeftRecursion(Production production) {
-    for(int i = 0;i<production.rhs.size();i++) {
-        if(production.rhs[i][0] == production.lhs) {
+    for (int i = 0; i < production.rhs.size(); i++) {
+        if (production.rhs[i][0] == production.lhs) {
             return i;
         }
     }
     return -1;
 }
-void removeLeftRecursion(vector<Production>& grammar,int productionIndex,int ruleIndex) {
+
+void removeLeftRecursion(vector <Production> &grammar, int productionIndex, int ruleIndex) {
     Production temp;
     Production prodWithRecursion = grammar[productionIndex];
     grammar.erase(grammar.begin() + productionIndex);
 
-    vector<string> tempRule;
+    vector <string> tempRule;
 
-    for(auto &item: prodWithRecursion.rhs) {
+    for (auto &item: prodWithRecursion.rhs) {
         auto i = &item - &prodWithRecursion.rhs[0];
-         if(i == ruleIndex) {
-             continue;
-         }
+        if (i == ruleIndex) {
+            continue;
+        }
         tempRule = item;
         tempRule.push_back(prodWithRecursion.lhs + "1");
         temp.rhs.push_back(tempRule);
@@ -62,7 +63,6 @@ void removeLeftRecursion(vector<Production>& grammar,int productionIndex,int rul
     temp.rhs.push_back({"e"});
     temp.lhs = prodWithRecursion.lhs + "1";
     grammar.push_back(temp1);
-
 
 
 }

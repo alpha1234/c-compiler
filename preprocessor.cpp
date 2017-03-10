@@ -1,4 +1,4 @@
-#include "include/compiler.h"
+
 #include "include/common.h"
 #include "include/preprocessor.h"
 #include <string.h>
@@ -7,13 +7,13 @@ using namespace std;
 
 
 void removeComments(const char inputFileName[], const char outputFileName[]) {
-    if(strcmp(inputFileName,outputFileName) == 0) {
-        cout<<"Input and Outut filename cannot be same : removeComments()";
+    if (strcmp(inputFileName, outputFileName) == 0) {
+        cout << "Input and Outut filename cannot be same : removeComments()";
         exit(1);
     }
     FILE *input = openFile(inputFileName, "r");
     FILE *output = openFile(outputFileName, "w");
-    char c,d;
+    char c, d;
     while ((c = next(input)) != EOF) {
         if (c == '"') {
             do {
@@ -28,18 +28,18 @@ void removeComments(const char inputFileName[], const char outputFileName[]) {
             continue;
         }
         if (c == '/') {
-            d = peek(input,1);
+            d = peek(input, 1);
             if (d == '*') {
                 while ((d = next(input)) != EOF) {
                     if (d == '\n') {
                         fputc('\n', output);
                     } else if (d == '*') {
                         d = next(input);
-                        if(d == '/') {
+                        if (d == '/') {
                             break;
                         }
-                        if(d == '\n') {
-                            fputc('\n',output);
+                        if (d == '\n') {
+                            fputc('\n', output);
                         }
                     }
                 }
@@ -47,7 +47,7 @@ void removeComments(const char inputFileName[], const char outputFileName[]) {
             } else if (d == '/') {
                 while (1) {
                     d = next(input);
-                    if(d == '\n' || d == EOF) {
+                    if (d == '\n' || d == EOF) {
                         break;
                     }
                 }
@@ -63,9 +63,9 @@ void removeComments(const char inputFileName[], const char outputFileName[]) {
 }
 
 
-void processIncludes(const char inputFileName[],const char outputFileName[]) {
-    if(strcmp(inputFileName,outputFileName) == 0) {
-        cout<<"Input and Outut filename cannot be same : processIncludes()";
+void processIncludes(const char inputFileName[], const char outputFileName[]) {
+    if (strcmp(inputFileName, outputFileName) == 0) {
+        cout << "Input and Outut filename cannot be same : processIncludes()";
         exit(1);
     }
     FILE *input = openFile(inputFileName, "r");
@@ -73,7 +73,7 @@ void processIncludes(const char inputFileName[],const char outputFileName[]) {
     bool isPreviousNonSpaceNewline = true;
     char c;
     while ((c = next(input)) != EOF) {
-        if(c == '\n') {
+        if (c == '\n') {
             isPreviousNonSpaceNewline = true;
         }
         if (isPreviousNonSpaceNewline) {

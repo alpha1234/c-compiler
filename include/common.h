@@ -8,7 +8,7 @@ char next(FILE *);
 
 void shift(FILE *, long int);
 
-char peek(FILE *,long int);
+char peek(FILE *, long int);
 
 
 inline bool isWhitespace(int c) {

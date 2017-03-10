@@ -1,10 +1,10 @@
-#include "include/compiler.h"
+
 #include "include/common.h"
 #include "include/Token.h"
 
 using namespace std;
 
-FILE *fp,*tokensOutput;
+FILE *fp, *tokensOutput;
 int filePointerLocation;
 extern int line;
 extern int column;
@@ -21,8 +21,7 @@ const vector <std::string> RESERVED_KEYWORDS = {
 };
 
 
-
-void readNumber(Token* token,char c) {
+void readNumber(Token *token, char c) {
     string num;
     num.push_back(c);
     while ((c = next(fp)) != EOF) {
@@ -59,7 +58,7 @@ char readEscapedChar() {
     }
 }
 
-void readString(Token * token) {
+void readString(Token *token) {
     string s;
     char c, prev = 0;
     while ((c = next(fp)) != EOF) {
@@ -76,7 +75,7 @@ void readString(Token * token) {
     token->value.s = s;
 }
 
-void readChar(Token * token) {
+void readChar(Token *token) {
     char c = next(fp);
     if (c == '\\') {
         c = readEscapedChar();
@@ -87,7 +86,7 @@ void readChar(Token * token) {
 }
 
 
-void readIdentifier(Token * token,char c) {
+void readIdentifier(Token *token, char c) {
     string s;
     s.push_back(c);
 
@@ -118,19 +117,17 @@ void skipWhitespaces() {
             shift(fp, -1);
             break;
         }
-        if(c == '\n') {
+        if (c == '\n') {
             line++;
             column = 0;
-        }
-        else if(c == '\t') {
+        } else if (c == '\t') {
             column += 3;   //Don't increment by 4.next() function will increment by 1. 
         }
     }
 }
 
 
-
-Token* getNextToken() {
+Token *getNextToken() {
     skipWhitespaces();
     filePointerLocation = ftell(fp);
 
@@ -317,13 +314,13 @@ Token* getNextToken() {
     }
 
     fputs(token->getFormatted().c_str(), tokensOutput);
-    fputc('\n',tokensOutput);
+    fputc('\n', tokensOutput);
     return token;
 }
 
 
 void ungetToken() {
-    fseek ( fp , filePointerLocation , SEEK_SET );
+    fseek(fp, filePointerLocation, SEEK_SET);
 }
 
 void lex_initialize(const char *inputFileName) {

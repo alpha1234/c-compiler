@@ -1,23 +1,28 @@
 #include "../include/compiler.h"
-#include "../include/Token.h"
+#include "../include/token.h"
 #include "../include/lex.h"
 
 using namespace std;
 
 bool E();
+
 bool E1();
+
 bool T();
+
 bool T1();
+
 bool F();
 
-Token token;
+Token *token;
+
 bool E() {
     cout << "Inside E \n";
 
-    if(T()) {
+    if (T()) {
         return E1();
     }
-    undoTokenGet();
+    ungetToken();
     return false;
 }
 
@@ -25,32 +30,34 @@ bool E1() {
     cout << "Inside E1 \n";
 
     token = getNextToken();
-    if(token.type == PLUS) {
-        if(T()) {
+    if (token->type == PLUS) {
+        if (T()) {
             return E1();
         }
     }
-    undoTokenGet();
+    ungetToken();
     return true;
 }
+
 bool T() {
     cout << "Inside T \n";
 
-    if(F()) {
+    if (F()) {
         return T1();
     }
     return false;
 }
+
 bool T1() {
     cout << "Inside T1 \n";
 
     token = getNextToken();
-    if(token.type == MULT) {
-        if(F()) {
+    if (token->type == MULT) {
+        if (F()) {
             return T1();
         }
     }
-    undoTokenGet();
+    ungetToken();
     return true;
 }
 
@@ -58,15 +65,15 @@ bool F() {
     cout << "Inside F \n";
 
     token = getNextToken();
-    if (token.type == OPEN_PAREN) {
+    if (token->type == OPEN_PAREN) {
         if (E()) {
             token = getNextToken();
-            if (token.type == CLOSE_PAREN) {
+            if (token->type == CLOSE_PAREN) {
                 return true;
             }
         }
     } else {
-        return token.type == IDENTIFIER;
+        return token->type == IDENTIFIER;
     }
 
     return false;
@@ -76,19 +83,17 @@ bool F() {
 
 int main() {
 
- char inputFileName[] = "data/input.txt";
+    char inputFileName[] = "data/input.txt";
     compiler_initialize(inputFileName);
-        if(E()) {
+    if (E()) {
         token = getNextToken();
-        if(token.type == TEOF) {
+        if (token->type == TEOF) {
             cout << "Success";
+        } else {
+            cout << "Error";
         }
-        else {
-            cout<<"Error";
-        }
-    }
-    else {
-        cout<<"Error";
+    } else {
+        cout << "Error";
     }
 
     compiler_finalize();

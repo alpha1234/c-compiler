@@ -1,12 +1,12 @@
-#include "include/compiler.h"
+
 #include "include/common.h"
 
 using namespace std;
 
 /* extern variables */
-int line,column;
+int line, column;
 
-FILE *openFile(const char * fileName, const char *mode) {
+FILE *openFile(const char *fileName, const char *mode) {
     FILE *fp = fopen(fileName, mode);
     column = 0;
     line = 1;
@@ -33,14 +33,14 @@ char next(FILE *fp) {
     return fgetc(fp);
 }
 
-void shift(FILE *fp,long int m) {
+void shift(FILE *fp, long int m) {
     column = column + m;
     fseek(fp, m, SEEK_CUR);
 }
 
-char peek(FILE *fp,long int m) {
-    shift(fp,m-1);
+char peek(FILE *fp, long int m) {
+    shift(fp, m - 1);
     char c = next(fp);
-    shift(fp,-m );
+    shift(fp, -m);
     return c;
 }

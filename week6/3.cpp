@@ -1,10 +1,13 @@
-#include "../include/compiler.h"
+
 
 using namespace std;
 
 bool S();
+
 bool A();
+
 bool A1();
+
 bool B();
 
 string buffer;
@@ -40,6 +43,7 @@ bool A() {
     i--;
     return true;
 }
+
 bool A1() {
     cout << "Inside A1 \n";
     i++;
@@ -49,10 +53,11 @@ bool A1() {
     i--;
     return true;
 }
+
 bool B() {
     cout << "Inside B \n";
     i++;
-    if(buffer[i] == 'd') {
+    if (buffer[i] == 'd') {
         return true;
     }
     return false;
@@ -61,17 +66,15 @@ bool B() {
 
 int main() {
     buffer = "abcde$";
-    if(S()) {
+    if (S()) {
         i++;
-        if(buffer[i] == '$') {
+        if (buffer[i] == '$') {
             cout << "Success";
+        } else {
+            cout << "Error";
         }
-        else {
-            cout<<"Error";
-        }
-    }
-    else {
-        cout<<"Error";
+    } else {
+        cout << "Error";
     }
 
     return 0;

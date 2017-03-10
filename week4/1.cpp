@@ -6,18 +6,17 @@
 
 using namespace std;
 
-HashMap<string,SymbolTableRow> symbolTable;
+HashMap<string, SymbolTableRow> symbolTable;
 int lastInsertId = -1;
 
-void insertIntoSymbolTable(Token& token) {
+void insertIntoSymbolTable(Token &token) {
 
     SymbolTableRow row;
 
-    bool result = symbolTable.get(token.value.s,row);
+    bool result = symbolTable.get(token.value.s, row);
     if (result) {
         token.value.id = row.id;
-    }
-    else {
+    } else {
         lastInsertId++;
         row.id = lastInsertId;
         row.name = token.value.s;
@@ -83,7 +82,7 @@ int main() {
         if (token.type == TEOF) {
             break;
         }
-        if(token.type == IDENTIFIER) {
+        if (token.type == IDENTIFIER) {
             insertIntoSymbolTable(token);
         }
     }

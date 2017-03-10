@@ -7,33 +7,52 @@
 using namespace std;
 
 void S();
+
 void DECLARATIONS();
+
 void DATA_TYPE();
+
 void IDENTIFIER_LIST();
+
 void STATEMENT_LIST();
+
 void STATEMENT();
+
 void ASSIGN_STAT();
+
 void EXPN();
+
 void EPRIME();
+
 void SIMPLE_EXPN();
+
 void SEPRIME();
+
 void TERM();
+
 void TPRIME();
+
 void FACTOR();
+
 void DECISION_STAT();
+
 void DPRIME();
+
 void LOOPING_STAT();
+
 void RELOP();
+
 void ADDOP();
+
 void MULOP();
 
 Token *token;
 
-map<string,vector<int>> FIRST;
+map <string, vector<int>> FIRST;
 
 bool errorFound = false;
 
-bool inFirst(Token *token,string name) {
+bool inFirst(Token *token, string name) {
     return find(FIRST[name].begin(), FIRST[name].end(), token->type) != FIRST[name].end();
 
 }
@@ -43,8 +62,8 @@ void next() {
 }
 
 void error(string message) {
-    cout<<"\nERROR on line "<<token->line<<" column "<<token->column<<"\n";
-    cout<<"Expected: "<<message<<" Found: "<<token->getFormatted()<<"\n";
+    cout << "\nERROR on line " << token->line << " column " << token->column << "\n";
+    cout << "Expected: " << message << " Found: " << token->getFormatted() << "\n";
     errorFound = true;
 }
 
@@ -75,7 +94,7 @@ void expect(int type) {
 void S() {
     // cout<<"S\n";
 
-    if(accept("main")) {
+    if (accept("main")) {
         expect(OPEN_PAREN);
         expect(CLOSE_PAREN);
         expect(OPEN_BRACE);
@@ -96,11 +115,10 @@ void DECLARATIONS() {
 }
 
 
-
 void DATA_TYPE() {
     // cout<<"DATA_TYPE\n";
 
-    if(!(accept(KEYWORD_INT) || accept(KEYWORD_CHAR))) {
+    if (!(accept(KEYWORD_INT) || accept(KEYWORD_CHAR))) {
         error("int or char");
     }
 }
@@ -109,7 +127,7 @@ void DATA_TYPE() {
 void IDENTIFIER_LIST() {
     //cout<<"IDENTIFIER_LIST\n";
 
-    if(accept(IDENTIFIER)) {
+    if (accept(IDENTIFIER)) {
         if (accept(COMMA)) {
             IDENTIFIER_LIST();
         } else if (accept(OPEN_SQUARE)) {
@@ -118,15 +136,13 @@ void IDENTIFIER_LIST() {
             if (accept(COMMA)) {
                 IDENTIFIER_LIST();
             }
-        }
-        else if(accept(EQ)) {
+        } else if (accept(EQ)) {
             EXPN();
-            if(accept(COMMA)) {
+            if (accept(COMMA)) {
                 IDENTIFIER_LIST();
             }
         }
-    }
-    else {
+    } else {
         error("IDENTIFIER");
     }
 }
@@ -135,7 +151,7 @@ void IDENTIFIER_LIST() {
 void STATEMENT_LIST() {
     // cout<<"STATEMENT_LIST\n";
 
-    if(inFirst(token,"STATEMENT_LIST")) {
+    if (inFirst(token, "STATEMENT_LIST")) {
         STATEMENT();
         STATEMENT_LIST();
     }
@@ -145,17 +161,14 @@ void STATEMENT_LIST() {
 void STATEMENT() {
     //cout<<"STATEMENT\n";
 
-    if(token->type == IDENTIFIER) {
+    if (token->type == IDENTIFIER) {
         ASSIGN_STAT();
         expect(SEMICOLON);
-    }
-    else if(token->type == KEYWORD_IF) {
+    } else if (token->type == KEYWORD_IF) {
         DECISION_STAT();
-    }
-    else if(inFirst(token,"STATEMENT")) {
+    } else if (inFirst(token, "STATEMENT")) {
         LOOPING_STAT();
-    }
-    else {
+    } else {
         error("id, if, while, for");
     }
 }
@@ -182,9 +195,10 @@ void EXPN() {
     SIMPLE_EXPN();
     EPRIME();
 }
+
 void EPRIME() {
     // cout<<"EPRIME\n";
-    if(inFirst(token,"EPRIME")) {
+    if (inFirst(token, "EPRIME")) {
         RELOP();
         SIMPLE_EXPN();
     }
@@ -196,10 +210,11 @@ void SIMPLE_EXPN() {
     TERM();
     SEPRIME();
 }
+
 void SEPRIME() {
     // cout<<"SEPRIME\n";
 
-    if(inFirst(token,"SEPRIME")) {
+    if (inFirst(token, "SEPRIME")) {
         ADDOP();
         TERM();
         SEPRIME();
@@ -215,7 +230,7 @@ void TERM() {
 
 void TPRIME() {
     //  cout<<"TPRIME\n";
-    if(inFirst(token,"TPRIME")) {
+    if (inFirst(token, "TPRIME")) {
         MULOP();
         FACTOR();
         TPRIME();
@@ -224,10 +239,11 @@ void TPRIME() {
 
 void FACTOR() {
     // cout<<"FACTOR\n";
-    if(!(accept(IDENTIFIER) || accept(NUMBER))) {
+    if (!(accept(IDENTIFIER) || accept(NUMBER))) {
         error("IDENTIFIER OR NUMBER");
     }
 }
+
 void DECISION_STAT() {
     // cout<<"DECISION_STAT\n";
 
@@ -240,10 +256,11 @@ void DECISION_STAT() {
     expect(CLOSE_BRACE);
     DPRIME();
 }
+
 void DPRIME() {
     // cout<<"DPRIME\n";
 
-    if(accept(KEYWORD_ELSE)) {
+    if (accept(KEYWORD_ELSE)) {
         expect(OPEN_BRACE);
         STATEMENT_LIST();
         expect(CLOSE_BRACE);
@@ -252,15 +269,14 @@ void DPRIME() {
 
 void LOOPING_STAT() {
     // cout<<"LOOPING_STAT\n";
-    if(accept(KEYWORD_WHILE)) {
+    if (accept(KEYWORD_WHILE)) {
         expect(OPEN_PAREN);
         EXPN();
         expect(CLOSE_PAREN);
         expect(OPEN_BRACE);
         STATEMENT_LIST();
         expect(CLOSE_BRACE);
-    }
-    else if(accept(KEYWORD_FOR)) {
+    } else if (accept(KEYWORD_FOR)) {
         expect(OPEN_PAREN);
         ASSIGN_STAT();
         expect(SEMICOLON);
@@ -271,8 +287,7 @@ void LOOPING_STAT() {
         expect(OPEN_BRACE);
         STATEMENT_LIST();
         expect(CLOSE_BRACE);
-    }
-    else {
+    } else {
         error("while,for");
     }
 
@@ -308,18 +323,16 @@ void MULOP() {
 }
 
 
-
-
 int main() {
 
     FIRST = {
-            {"DECLARATIONS", {KEYWORD_INT,KEYWORD_CHAR} },
-            {"TPRIME", {MULT,DIV,MOD}},
-            {"STATEMENT_LIST",{IDENTIFIER,KEYWORD_IF,KEYWORD_WHILE,KEYWORD_FOR}},
-            {"STATEMENT",{KEYWORD_WHILE,KEYWORD_FOR}},
-            {"EPRIME",{EQ_EQ,NOT_EQ,LESS_EQ,GREATER_EQ,GREATER,LESS}},
-            {"SEPRIME",{PLUS,MINUS}},
-            {"TPRIME",{MULT,DIV,MOD}}
+            {"DECLARATIONS",   {KEYWORD_INT,   KEYWORD_CHAR}},
+            {"TPRIME",         {MULT,          DIV,        MOD}},
+            {"STATEMENT_LIST", {IDENTIFIER,    KEYWORD_IF, KEYWORD_WHILE, KEYWORD_FOR}},
+            {"STATEMENT",      {KEYWORD_WHILE, KEYWORD_FOR}},
+            {"EPRIME",         {EQ_EQ,         NOT_EQ,     LESS_EQ,       GREATER_EQ, GREATER, LESS}},
+            {"SEPRIME",        {PLUS,          MINUS}},
+            {"TPRIME",         {MULT,          DIV,        MOD}}
     };
 
     char inputFileName[] = "data/input.txt";
@@ -328,10 +341,10 @@ int main() {
     next();
     S();
     expect(TEOF);
-    if(!errorFound)
-        cout<< "\nGrammar Correct\n";
+    if (!errorFound)
+        cout << "\nGrammar Correct\n";
     else
-        cout<<"\nGrammar Incorrect\n";
+        cout << "\nGrammar Incorrect\n";
 
     compiler_finalize();
     return 0;

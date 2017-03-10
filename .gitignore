@@ -37,4 +37,4 @@ temp.txt
 tokens.txt
 output.txt
 /cmake-build-debug/
-/CMakeLists.txt
+/build/

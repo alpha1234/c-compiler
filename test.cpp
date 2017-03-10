@@ -1,6 +1,7 @@
 #include "include/compiler.h"
 #include "include/Token.h"
 #include "include/lex.h"
+#include <iostream>
 
 using namespace std;
 

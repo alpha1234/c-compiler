@@ -1,6 +1,6 @@
-
 #include "include/common.h"
 #include "include/Token.h"
+#include <algorithm>
 
 using namespace std;
 

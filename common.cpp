@@ -33,37 +33,14 @@ char next(FILE *fp) {
     return fgetc(fp);
 }
 
-void shift(FILE *fp, int m) {
+void shift(FILE *fp,long int m) {
     column = column + m;
     fseek(fp, m, SEEK_CUR);
 }
 
-char peek(FILE *fp,int m) {
+char peek(FILE *fp,long int m) {
     shift(fp,m-1);
     char c = next(fp);
     shift(fp,-m );
     return c;
 }
-
-/*
-template <class T>
-int indexOf(vector<T> array,T s) {
-    for(int i= 0;i< array.size();i++) {
-        if(array[i] == s) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-template <class T>
-bool inArray(vector<T> array,T s) {
-    for(int i= 0;i< array.size();i++) {
-        if(array[i] == s) {
-            return true;
-        }
-    }
-    return false;
-}
-
- */

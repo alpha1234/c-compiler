@@ -2,6 +2,7 @@
 #include "../include/Token.h"
 #include "../include/lex.h"
 #include <map>
+#include <algorithm>
 
 using namespace std;
 
@@ -30,14 +31,11 @@ Token token;
 
 map<string,vector<int>> FIRST;
 
+bool errorFound = false;
 
-bool inArray(int val,vector<int> list) {
-    for (const auto& i : list) {
-        if (val == i) {
-            return true;
-        }
-    }
-    return false;
+bool inFirst(Token token,string name) {
+    return find(FIRST[name].begin(), FIRST[name].end(), token.type) != FIRST[name].end();
+
 }
 
 void next() {
@@ -47,8 +45,7 @@ void next() {
 void error(string message) {
     cout<<"\nERROR on line "<<token.line<<" column "<<token.column<<"\n";
     cout<<"Expected: "<<message<<" Found: "<<token.getFormatted()<<"\n";
-    lex_finalize();
-    exit(0);
+    errorFound = true;
 }
 
 bool accept(int type) {
@@ -89,8 +86,8 @@ void S() {
 }
 
 void DECLARATIONS() {
-    cout<<"DECLARATIONS\n";
-    if(inArray(token.type,FIRST["DECLARATIONS"])) {
+    // cout<<"DECLARATIONS\n";
+    if (inFirst(token, "DECLARATIONS")) {
         DATA_TYPE();
         IDENTIFIER_LIST();
         expect(SEMICOLON);
@@ -101,18 +98,16 @@ void DECLARATIONS() {
 
 
 void DATA_TYPE() {
-    cout<<"DATA_TYPE\n";
+   // cout<<"DATA_TYPE\n";
 
-    if(accept(KEYWORD_INT) || accept(KEYWORD_CHAR)) {}
-    else {
+    if(!(accept(KEYWORD_INT) || accept(KEYWORD_CHAR))) {
         error("int or char");
-        next();
     }
 }
 
 
 void IDENTIFIER_LIST() {
-    cout<<"IDENTIFIER_LIST\n";
+    //cout<<"IDENTIFIER_LIST\n";
 
     if(accept(IDENTIFIER)) {
         if (accept(COMMA)) {
@@ -133,15 +128,14 @@ void IDENTIFIER_LIST() {
     }
     else {
         error("IDENTIFIER");
-        next();
     }
 }
 
 
 void STATEMENT_LIST() {
-    cout<<"STATEMENT_LIST\n";
+   // cout<<"STATEMENT_LIST\n";
 
-    if(inArray(token.type,FIRST["STATEMENT_LIST"])) {
+    if(inFirst(token,"STATEMENT_LIST")) {
         STATEMENT();
         STATEMENT_LIST();
     }
@@ -149,7 +143,7 @@ void STATEMENT_LIST() {
 
 
 void STATEMENT() {
-    cout<<"STATEMENT\n";
+    //cout<<"STATEMENT\n";
 
     if(token.type == IDENTIFIER) {
         ASSIGN_STAT();
@@ -158,7 +152,7 @@ void STATEMENT() {
     else if(token.type == KEYWORD_IF) {
         DECISION_STAT();
     }
-    else if(inArray(token.type,FIRST["STATEMENT"])) {
+    else if(inFirst(token,"STATEMENT")) {
         LOOPING_STAT();
     }
     else {
@@ -167,37 +161,45 @@ void STATEMENT() {
 }
 
 void ASSIGN_STAT() {
-    cout<<"ASSIGN_STAT\n";
+    //cout<<"ASSIGN_STAT\n";
 
     expect(IDENTIFIER);
-    expect(EQ);
+
+    if (!(
+            accept(EQ) || accept(PLUS_EQ) || accept(MINUS_EQ) || accept(MULT_EQ) || accept(DIV_EQ) ||
+            accept(MOD_EQ) || accept(AND_EQ) || accept(OR_EQ) || accept(XOR_EQ) ||
+            accept(RSHIFT_EQ) || accept(LSHIFT_EQ) || accept(EQ_EQ) || accept(NOT_EQ) || accept(LESS_EQ) ||
+            accept(GREATER_EQ) || accept(GREATER) || accept(LESS) || accept(EQ_EQ) || accept(NOT_EQ)
+    )) {
+        error("Expected Assignment Operator");
+    }
     EXPN();
 }
 
 void EXPN() {
-    cout<<"EXPN\n";
+   // cout<<"EXPN\n";
 
     SIMPLE_EXPN();
     EPRIME();
 }
 void EPRIME() {
-    cout<<"EPRIME\n";
-        if(inArray(token.type,FIRST["EPRIME"])) {
+   // cout<<"EPRIME\n";
+        if(inFirst(token,"EPRIME")) {
             RELOP();
         SIMPLE_EXPN();
     }
 }
 
 void SIMPLE_EXPN() {
-    cout<<"SIMPLE_EXPN\n";
+   // cout<<"SIMPLE_EXPN\n";
 
     TERM();
     SEPRIME();
 }
 void SEPRIME() {
-    cout<<"SEPRIME\n";
+   // cout<<"SEPRIME\n";
 
-    if(inArray(token.type,FIRST["SEPRIME"])) {
+    if(inFirst(token,"SEPRIME")) {
         ADDOP();
         TERM();
         SEPRIME();
@@ -205,15 +207,15 @@ void SEPRIME() {
 }
 
 void TERM() {
-    cout<<"TERM\n";
+   // cout<<"TERM\n";
 
     FACTOR();
     TPRIME();
 }
 
 void TPRIME() {
-    cout<<"TPRIME\n";
-    if(inArray(token.type,FIRST["TPRIME"])) {
+  //  cout<<"TPRIME\n";
+    if(inFirst(token,"TPRIME")) {
         MULOP();
         FACTOR();
         TPRIME();
@@ -221,15 +223,13 @@ void TPRIME() {
 }
 
 void FACTOR() {
-    cout<<"FACTOR\n";
-    if(accept(IDENTIFIER) || accept(NUMBER)) {
-    }
-    else {
+   // cout<<"FACTOR\n";
+    if(!(accept(IDENTIFIER) || accept(NUMBER))) {
         error("IDENTIFIER OR NUMBER");
     }
 }
 void DECISION_STAT() {
-    cout<<"DECISION_STAT\n";
+   // cout<<"DECISION_STAT\n";
 
     expect(KEYWORD_IF);
     expect(OPEN_PAREN);
@@ -241,7 +241,7 @@ void DECISION_STAT() {
     DPRIME();
 }
 void DPRIME() {
-    cout<<"DPRIME\n";
+   // cout<<"DPRIME\n";
 
     if(accept(KEYWORD_ELSE)) {
         expect(OPEN_BRACE);
@@ -251,7 +251,7 @@ void DPRIME() {
 }
 
 void LOOPING_STAT() {
-    cout<<"LOOPING_STAT\n";
+   // cout<<"LOOPING_STAT\n";
     if(accept(KEYWORD_WHILE)) {
         expect(OPEN_PAREN);
         EXPN();
@@ -280,32 +280,28 @@ void LOOPING_STAT() {
 }
 
 void RELOP() {
-    cout<<"RELOP\n";
-    if(accept(EQ_EQ) || accept(NOT_EQ) || accept(LESS_EQ) ||
-            accept(GREATER_EQ) || accept(GREATER) || accept(LESS)) {
-
-    }
-    else {
-        error("==,!=,<=,>=,>,<");
+    //cout<<"RELOP\n";
+    if (!(accept(EQ_EQ) || accept(NOT_EQ) || accept(LESS_EQ) ||
+        accept(GREATER_EQ) || accept(GREATER) || accept(LESS) ||
+        accept(EQ_EQ) || accept(NOT_EQ))) {
+        error("==,!=,<=,>=,>,<,==,!=");
     }
 
 }
 
 void ADDOP() {
-    cout << "ADDOP\n";
+    //cout << "ADDOP\n";
 
-    if (accept(PLUS) || accept(MINUS)) {
-    } else {
+    if (!(accept(PLUS) || accept(MINUS))) {
         error("+,-");
     }
 
 }
 
 void MULOP() {
-    cout << "MULOP\n";
+    // cout << "MULOP\n";
 
-    if (accept(MULT) || accept(DIV) || accept(MOD)) {
-    } else {
+    if (!(accept(MULT) || accept(DIV) || accept(MOD))) {
         error("*,/,%");
     }
 
@@ -332,7 +328,11 @@ int main() {
     next();
     S();
     expect(TEOF);
-    cout<< "Success";
+    if(!errorFound)
+        cout<< "\nGrammar Correct\n";
+    else
+        cout<<"\nGrammar Incorrect\n";
+
     compiler_finalize();
     return 0;
 }

@@ -1,25 +1,26 @@
-
-CFLAGS=-std=c++14
+CFLAGS=-std=c++14 -g
+CXX_FLAGS = $(CFLAGS)
 CC=g++
+BIN=main
 
-all: main
+BUILD_DIR = ./build
 
-main: build/compiler.o build/common.o build/preprocessor.o build/lex.o
-	$(CC) $(CFLAGS) build/compiler.o build/common.o build/preprocessor.o build/lex.o $(file)
+CPP = compiler.cpp common.cpp preprocessor.cpp lex.cpp $(file)
 
-build/compiler.o: compiler.cpp
-	$(CC) $(CFLAGS) -c -o build/compiler.o compiler.cpp
+OBJ = $(CPP:%.cpp=$(BUILD_DIR)/%.o)
+DEP = $(OBJ:%.o=%.d)
 
-build/common.o: common.cpp
-	$(CC) $(CFLAGS) -c -o build/common.o common.cpp
+$(BIN) : $(OBJ)
+	mkdir -p $(@D)
+	$(CXX) $(CXX_FLAGS) $^ -o $@
 
-build/preprocessor.o: preprocessor.cpp
-	$(CC) $(CFLAGS) -c -o build/preprocessor.o preprocessor.cpp
+-include $(DEP)
 
-build/lex.o: lex.cpp
-	$(CC) $(CFLAGS) -c -o build/lex.o lex.cpp
+$(BUILD_DIR)/%.o : %.cpp
+	mkdir -p $(@D)
+	$(CXX) $(CXX_FLAGS) -MMD -c $< -o $@
 
-.PHONY: clean
+.PHONY : clean
+clean :
+	-rm $(BIN) $(OBJ) $(DEP)
 
-clean:
-	del /Q build

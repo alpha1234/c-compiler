@@ -1,16 +1,14 @@
 #pragma once
 
-#include <vector>
-
 FILE *openFile(const char *, const char *);
 
 void copyFile(const char *, const char *);
 
 char next(FILE *);
 
-void shift(FILE *, int);
+void shift(FILE *, long int);
 
-char peek(FILE *,int);
+char peek(FILE *,long int);
 
 
 inline bool isWhitespace(int c) {

@@ -3,6 +3,7 @@
 #include "../include/lex.h"
 #include <map>
 #include <algorithm>
+#include <iostream>
 
 using namespace std;
 
@@ -75,14 +76,6 @@ bool accept(int type) {
     return false;
 }
 
-bool accept(string s) {
-    if (token->value.s == s) {
-        next();
-        return true;
-    }
-    return false;
-}
-
 
 void expect(int type) {
     if (!accept(type)) {
@@ -94,7 +87,7 @@ void expect(int type) {
 void S() {
     // cout<<"S\n";
 
-    if (accept("main")) {
+    if (accept(IDENTIFIER)) {
         expect(OPEN_PAREN);
         expect(CLOSE_PAREN);
         expect(OPEN_BRACE);

@@ -5,10 +5,10 @@
 using namespace std;
 
 void compiler_initialize(char *inputFileName) {
-    string tempFile = tmpnam(nullptr);
-    removeComments(inputFileName, tempFile.c_str());
+    //string tempFile = tmpnam(nullptr);
+  //  removeComments(inputFileName, tempFile.c_str());
 
-    processIncludes(tempFile.c_str(), TEMPFILE);
+    processIncludes(inputFileName,TEMPFILE);
 
     lex_initialize(TEMPFILE);
 }

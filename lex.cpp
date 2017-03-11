@@ -113,204 +113,242 @@ void readIdentifier(Token *token, char c) {
 void skipWhitespaces() {
     char c;
     while ((c = next(fp)) != EOF) {
-        if (!isWhitespace(c) && c != '\n') {
+        if (!isWhitespace(c)) {
             shift(fp, -1);
             break;
         }
-        if (c == '\n') {
-            line++;
-            column = 0;
-        } else if (c == '\t') {
-            column += 3;   //Don't increment by 4.next() function will increment by 1. 
+        if(c == '\t') {
+            column += 3;
         }
     }
 }
 
+void skipBlockComment() {
+    char c, prev = 0;
+    while ((c = next(fp)) != EOF) {
+        if (c == '/' && prev == '*') {
+            break;
+        }
+        if(c == '\n') {
+            line++;
+            column = 0;
+        }
+        prev = c;
+    }
+}
+
+void skipLineComment() {
+    char c;
+    while ((c = next(fp)) != EOF) {
+        if (c == '\n') {
+            line++;
+            column = 0;
+            break;
+        }
+    }
+}
 
 Token *getNextToken() {
-    skipWhitespaces();
-    filePointerLocation = ftell(fp);
 
-    char c = next(fp);
+
+    char c;
     Token *token = new Token;
-    token->line = line;
-    token->column = column;
+    while (1) {
+        skipWhitespaces();
+        filePointerLocation = ftell(fp);
+        c = next(fp);
+        token->line = line;
+        token->column = column;
 
-    switch (c) {
-        case ',':
-            token->type = COMMA;
-            break;
-        case '(':
-            token->type = OPEN_PAREN;
-            break;
-        case ')':
-            token->type = CLOSE_PAREN;
-            break;
-        case '[':
-            token->type = OPEN_SQUARE;
-            break;
-        case ']':
-            token->type = CLOSE_SQUARE;
-            break;
-        case '{':
-            token->type = OPEN_BRACE;
-            break;
-        case '}':
-            token->type = CLOSE_BRACE;
-            break;
-        case ';':
-            token->type = SEMICOLON;
-            break;
+        switch (c) {
+            case '\n':
+                line++;
+                column = 0;
+                continue;
+            case ',':
+                token->type = COMMA;
+                break;
+            case '(':
+                token->type = OPEN_PAREN;
+                break;
+            case ')':
+                token->type = CLOSE_PAREN;
+                break;
+            case '[':
+                token->type = OPEN_SQUARE;
+                break;
+            case ']':
+                token->type = CLOSE_SQUARE;
+                break;
+            case '{':
+                token->type = OPEN_BRACE;
+                break;
+            case '}':
+                token->type = CLOSE_BRACE;
+                break;
+            case ';':
+                token->type = SEMICOLON;
+                break;
 
-        case '0' ... '9':
-            readNumber(token, c);
-            break;
+            case '0' ... '9':
+                readNumber(token, c);
+                break;
 
-        case '"':
-            readString(token);
-            break;
+            case '"':
+                readString(token);
+                break;
 
-        case '\'' :
-            readChar(token);
-            break;
+            case '\'' :
+                readChar(token);
+                break;
 
-        case 'a' ... 'z':
-        case 'A' ... 'Z':
-        case '_':
-            readIdentifier(token, c);
-            break;
+            case 'a' ... 'z':
+            case 'A' ... 'Z':
+            case '_':
+                readIdentifier(token, c);
+                break;
 
 
-        case '-':
-            c = next(fp);
-            if (c == '>') {
-                token->type = DEREF;
-            } else if (c == '-') {
-                token->type = MINUS_MINUS;
-            } else if (c == '=') {
-                token->type = MINUS_EQ;
-            } else {
-                shift(fp, -1);
-                token->type = MINUS;
-            }
-            break;
-        case '+':
-            c = next(fp);
-            if (c == '+') {
-                token->type = PLUS_PLUS;
-            } else if (c == '=') {
-                token->type = PLUS_EQ;
-            } else {
-                shift(fp, -1);
-                token->type = PLUS;
-            }
-            break;
-        case '!':
-            c = next(fp);
-            if (c == '=') {
-                token->type = NOT_EQ;
-            } else {
-                shift(fp, -1);
-                token->type = NOT;
-            }
-            break;
-        case '~':
-            token->type = COMPL;
-            break;
-
-        case '/':
-            c = next(fp);
-            if (c == '=') {
-                token->type = DIV_EQ;
-            } else {
-                shift(fp, -1);
-                token->type = DIV;
-            }
-            break;
-
-        case '*':
-            c = next(fp);
-            if (c == '=') {
-                token->type = MULT_EQ;
-            } else {
-                shift(fp, -1);
-                token->type = MULT;
-            }
-            break;
-
-        case '%':
-            c = next(fp);
-            if (c == '=') {
-                token->type = MOD_EQ;
-            } else {
-                shift(fp, -1);
-                token->type = MOD;
-            }
-            break;
-
-        case '<':
-            c = next(fp);
-            if (c == '<') {
+            case '-':
                 c = next(fp);
-                if (c == '=') {
-                    token->type = LSHIFT_EQ;
+                if (c == '>') {
+                    token->type = DEREF;
+                } else if (c == '-') {
+                    token->type = MINUS_MINUS;
+                } else if (c == '=') {
+                    token->type = MINUS_EQ;
                 } else {
                     shift(fp, -1);
-                    token->type = LSHIFT;
+                    token->type = MINUS;
                 }
-            } else if (c == '=') {
-                token->type = LESS_EQ;
-            } else {
-                shift(fp, -1);
-                token->type = LESS;
-            }
-            break;
-
-
-        case '>':
-            c = next(fp);
-            if (c == '>') {
+                break;
+            case '+':
                 c = next(fp);
-                if (c == '=') {
-                    token->type = RSHIFT_EQ;
+                if (c == '+') {
+                    token->type = PLUS_PLUS;
+                } else if (c == '=') {
+                    token->type = PLUS_EQ;
                 } else {
                     shift(fp, -1);
-                    token->type = RSHIFT;
+                    token->type = PLUS;
                 }
-            } else if (c == '=') {
-                token->type = GREATER_EQ;
-            } else {
-                shift(fp, -1);
-                token->type = GREATER;
-            }
-            break;
+                break;
+            case '!':
+                c = next(fp);
+                if (c == '=') {
+                    token->type = NOT_EQ;
+                } else {
+                    shift(fp, -1);
+                    token->type = NOT;
+                }
+                break;
+            case '~':
+                token->type = COMPL;
+                break;
 
-        case '=':
-            c = next(fp);
-            if (c == '=') {
-                token->type = EQ_EQ;
-            } else {
-                shift(fp, -1);
-                token->type = EQ;
-            }
-            break;
+            case '/':
+                c = next(fp);
+                if (c == '*') {
+                    skipBlockComment();
+                    continue;
+                }
+                else if(c == '/') {
+                    skipLineComment();
+                    continue;
+                }
+                else if (c == '=') {
+                    token->type = DIV_EQ;
+                } else {
+                    shift(fp, -1);
+                    token->type = DIV;
+                }
+                break;
 
-        case '&':
-            c = next(fp);
-            if (c == '&') {
-                token->type = AND_AND;
-            } else if (c == '=') {
-                token->type = AND_EQ;
-            } else {
-                shift(fp, -1);
-                token->type = LESS;
-            }
-            break;
+            case '*':
+                c = next(fp);
+                if (c == '=') {
+                    token->type = MULT_EQ;
+                } else {
+                    shift(fp, -1);
+                    token->type = MULT;
+                }
+                break;
+
+            case '%':
+                c = next(fp);
+                if (c == '=') {
+                    token->type = MOD_EQ;
+                } else {
+                    shift(fp, -1);
+                    token->type = MOD;
+                }
+                break;
+
+            case '<':
+                c = next(fp);
+                if (c == '<') {
+                    c = next(fp);
+                    if (c == '=') {
+                        token->type = LSHIFT_EQ;
+                    } else {
+                        shift(fp, -1);
+                        token->type = LSHIFT;
+                    }
+                } else if (c == '=') {
+                    token->type = LESS_EQ;
+                } else {
+                    shift(fp, -1);
+                    token->type = LESS;
+                }
+                break;
 
 
-        case EOF:
-            token->type = TEOF;
-            break;
+            case '>':
+                c = next(fp);
+                if (c == '>') {
+                    c = next(fp);
+                    if (c == '=') {
+                        token->type = RSHIFT_EQ;
+                    } else {
+                        shift(fp, -1);
+                        token->type = RSHIFT;
+                    }
+                } else if (c == '=') {
+                    token->type = GREATER_EQ;
+                } else {
+                    shift(fp, -1);
+                    token->type = GREATER;
+                }
+                break;
+
+            case '=':
+                c = next(fp);
+                if (c == '=') {
+                    token->type = EQ_EQ;
+                } else {
+                    shift(fp, -1);
+                    token->type = EQ;
+                }
+                break;
+
+            case '&':
+                c = next(fp);
+                if (c == '&') {
+                    token->type = AND_AND;
+                } else if (c == '=') {
+                    token->type = AND_EQ;
+                } else {
+                    shift(fp, -1);
+                    token->type = LESS;
+                }
+                break;
+
+
+            case EOF:
+                token->type = TEOF;
+                break;
+        }
+        break;
     }
 
     fputs(token->getFormatted().c_str(), tokensOutput);

@@ -11,7 +11,6 @@ OBJ = $(CPP:%.cpp=$(BUILD_DIR)/%.o)
 DEP = $(OBJ:%.o=%.d)
 
 $(BIN) : $(OBJ)
-	mkdir -p $(@D)
 	$(CXX) $(CXX_FLAGS) $^ -o $@
 
 -include $(DEP)

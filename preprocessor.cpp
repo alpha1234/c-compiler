@@ -5,7 +5,7 @@
 
 using namespace std;
 
-
+/*
 void removeComments(const char inputFileName[], const char outputFileName[]) {
     if (strcmp(inputFileName, outputFileName) == 0) {
         cout << "Input and Outut filename cannot be same : removeComments()";
@@ -62,7 +62,7 @@ void removeComments(const char inputFileName[], const char outputFileName[]) {
 
 }
 
-
+*/
 void processIncludes(const char inputFileName[], const char outputFileName[]) {
     if (strcmp(inputFileName, outputFileName) == 0) {
         cout << "Input and Outut filename cannot be same : processIncludes()";

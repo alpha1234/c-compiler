@@ -6,7 +6,7 @@
 template<typename K, typename V>
 class Node {
 public:
-    Node(K key, V &value) :
+    Node(K &key, V &value) :
             key(key), value(value), next(NULL) {
     }
 

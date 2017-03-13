@@ -1,6 +1,8 @@
 #include "include/common.h"
 #include "include/Token.h"
 #include <algorithm>
+#include "include/compiler.h"
+#include <iostream>
 
 using namespace std;
 
@@ -10,15 +12,29 @@ extern int line;
 extern int column;
 
 
-const vector <std::string> RESERVED_KEYWORDS = {
-        "auto", "break", "case", "char", "const",
-        "continue", "default", "do", "double", "else",
-        "enum", "extern", "float", "for", "goto",
-        "if", "int", "long", "register", "return",
-        "short", "signed", "sizeof", "static", "struct",
-        "switch", "typedef", "union", "unsigned", "void",
-        "volatile", "while"
-};
+
+
+void ungetToken() {
+    fseek(fp, filePointerLocation, SEEK_SET);
+}
+
+void lex_initialize(const char *inputFileName) {
+    fp = openFile(inputFileName, "r");
+    tokensOutput = openFile("data/tokens.txt", "w");
+}
+
+void lex_finalize() {
+    fclose(fp);
+    fclose(tokensOutput);
+}
+
+void lex_error(string message) {
+    cout<<"Lex Error at line "<<line<<" column "<<column<<"\n";
+    cout<<message<<"\n";
+    //compiler_finalize();
+   // exit(1);
+}
+
 
 
 void readNumber(Token *token, char c) {
@@ -33,12 +49,18 @@ void readNumber(Token *token, char c) {
         }
     }
     token->type = NUMBER;
-    token->value.number = atoi(num.c_str());
+    token->value.s = num;
 }
 
 
 char readEscapedChar() {
-    switch (next(fp)) {
+    char c = next(fp);
+    switch (c) {
+        case '\'':
+        case '"':
+        case '?':
+        case '\\':
+            return c;
         case 'a':
             return '\a';
         case 'b':
@@ -53,8 +75,6 @@ char readEscapedChar() {
             return '\t';
         case 'v':
             return '\v';
-        case '\\':
-            return '\\';
     }
 }
 
@@ -62,14 +82,16 @@ void readString(Token *token) {
     string s;
     char c, prev = 0;
     while ((c = next(fp)) != EOF) {
-        if (c == '"' && prev != '\\') {
+        if (c == '"') {
             break;
         }
         if (c == '\\') {
             c = readEscapedChar();
         }
         s.push_back(c);
-        prev = c;
+    }
+    if(c == EOF) {
+        lex_error("Unterminated String");
     }
     token->type = STRING;
     token->value.s = s;
@@ -80,7 +102,11 @@ void readChar(Token *token) {
     if (c == '\\') {
         c = readEscapedChar();
     }
-    next(fp); //TODO Char Literal without closing single quote
+    c = next(fp);
+    if (c != '\'') {
+        lex_error("Unclosed Char Literal");
+        shift(fp, -1);
+    }
     token->type = CHAR;
     token->value.c = c;
 }
@@ -98,15 +124,16 @@ void readIdentifier(Token *token, char c) {
             break;
         }
     }
+    /*
     auto index = distance(RESERVED_KEYWORDS.begin(),
                           find(RESERVED_KEYWORDS.begin(), RESERVED_KEYWORDS.end(), s));
 
     if (index < RESERVED_KEYWORDS.size()) {
         token->type = index;
     } else {
-        token->type = IDENTIFIER;
-        token->value.s = s;
-    }
+     */
+    token->type = NAME;
+    token->value.s = s;
 }
 
 
@@ -357,19 +384,6 @@ Token *getNextToken() {
 }
 
 
-void ungetToken() {
-    fseek(fp, filePointerLocation, SEEK_SET);
-}
-
-void lex_initialize(const char *inputFileName) {
-    fp = openFile(inputFileName, "r");
-    tokensOutput = openFile("data/tokens.txt", "w");
-}
-
-void lex_finalize() {
-    fclose(fp);
-    fclose(tokensOutput);
-}
 
 
 

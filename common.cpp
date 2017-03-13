@@ -38,9 +38,8 @@ void shift(FILE *fp, long int m) {
     fseek(fp, m, SEEK_CUR);
 }
 
-char peek(FILE *fp, long int m) {
-    shift(fp, m - 1);
-    char c = next(fp);
-    shift(fp, -m);
+char peek(FILE *fp) {
+    char c = fgetc(fp);
+    ungetc(c,fp);
     return c;
 }

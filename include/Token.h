@@ -21,7 +21,7 @@ enum {
     LSHIFT_EQ, OPEN_SQUARE, CLOSE_SQUARE, OPEN_BRACE, CLOSE_BRACE,
     SEMICOLON, PLUS_PLUS, MINUS_MINUS, DEREF,
     DOT, DEREF_STAR, DOT_STAR,
-    NUMBER, CHAR, OTHER, STRING, IDENTIFIER,
+    NUMBER, CHAR, OTHER, STRING, NAME,
     INVALID,
     TEOF,
 };
@@ -42,7 +42,7 @@ const std::vector <std::string> TYPE_MAPPING = {
         "LSHIFT_EQ", "OPEN_SQUARE", "CLOSE_SQUARE", "OPEN_BRACE", "CLOSE_BRACE",
         "SEMICOLON", "PLUS_PLUS", "MINUS_MINUS", "DEREF",
         "DOT", "DEREF_STAR", "DOT_STAR",
-        "NUMBER", "CHAR", "OTHER", "STRING", "IDENTIFIER",
+        "NUMBER", "CHAR", "OTHER", "STRING", "NAME",
         "INVALID",
         "TEOF",
 };
@@ -53,9 +53,9 @@ struct Token {
     int type;
     struct {
         std::string s;
-        int id;
+      //  int id;
         char c;
-        int number;
+        //int number;
     } value;
     int line;
     int column;
@@ -68,9 +68,6 @@ struct Token {
             case CHAR :
             case INVALID:
                 stream << value.c;
-                break;
-            case NUMBER:
-                stream << value.number;
                 break;
             default:
                 stream << value.s;

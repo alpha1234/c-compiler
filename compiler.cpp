@@ -1,8 +1,10 @@
 #include "include/compiler.h"
 #include "include/preprocessor.h"
 #include "include/lex.h"
+#include <iostream>
 
 using namespace std;
+
 
 void compiler_initialize(char *inputFileName) {
     //string tempFile = tmpnam(nullptr);
@@ -16,3 +18,4 @@ void compiler_initialize(char *inputFileName) {
 void compiler_finalize() {
     lex_finalize();
 }
+

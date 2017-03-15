@@ -1,8 +1,8 @@
-#include "../include/compiler.h"
-#include "../include/Token.h"
-#include "../include/lex.h"
-#include "../include/SymbolTable.h"
-#include "../include/HashTable.h"
+#include "include/compiler.h"
+#include "include/Token.h"
+#include "include/lex.h"
+#include "include/SymbolTable.h"
+#include "include/HashTable.h"
 
 #include <map>
 #include <algorithm>
@@ -99,7 +99,7 @@ void expect(int type) {
 void S() {
     // cout<<"S\n";
 
-    if (accept(IDENTIFIER)) {
+    if (accept(NAME)) {
         expect(OPEN_PAREN);
         expect(CLOSE_PAREN);
         expect(OPEN_BRACE);
@@ -133,7 +133,7 @@ int DATA_TYPE() {
 void IDENTIFIER_LIST(int type) {
     //cout<<"IDENTIFIER_LIST\n";
 
-    if (token->type == IDENTIFIER) {
+    if (token->type == NAME) {
         SymbolTableRow row;
         row.id = ++lastInsertId;
         row.name = token->value.s;
@@ -175,7 +175,7 @@ void STATEMENT_LIST() {
 void STATEMENT() {
     //cout<<"STATEMENT\n";
 
-    if (token->type == IDENTIFIER) {
+    if (token->type == NAME) {
         ASSIGN_STAT();
         expect(SEMICOLON);
     } else if (token->type == KEYWORD_IF) {
@@ -190,7 +190,7 @@ void STATEMENT() {
 void ASSIGN_STAT() {
     //cout<<"ASSIGN_STAT\n";
 
-    expect(IDENTIFIER);
+    expect(NAME);
 
     if (!(
             accept(EQ) || accept(PLUS_EQ) || accept(MINUS_EQ) || accept(MULT_EQ) || accept(DIV_EQ) ||
@@ -261,7 +261,7 @@ void TPRIME() {
 
 void FACTOR() {
     // cout<<"FACTOR\n";
-    if (!(accept(IDENTIFIER) || accept(NUMBER) || accept(CHAR))) {
+    if (!(accept(NAME) || accept(NUMBER) || accept(CHAR))) {
         error("IDENTIFIER OR NUMBER");
     }
 }
@@ -356,7 +356,7 @@ int main() {
     FIRST = {
             {"DECLARATIONS",   {KEYWORD_INT,   KEYWORD_CHAR}},
             {"TPRIME",         {MULT,          DIV,        MOD}},
-            {"STATEMENT_LIST", {IDENTIFIER,    KEYWORD_IF, KEYWORD_WHILE, KEYWORD_FOR}},
+            {"STATEMENT_LIST", {NAME,    KEYWORD_IF, KEYWORD_WHILE, KEYWORD_FOR}},
             {"STATEMENT",      {KEYWORD_WHILE, KEYWORD_FOR}},
             {"EPRIME",         {EQ_EQ,         NOT_EQ,     LESS_EQ,       GREATER_EQ, GREATER, LESS}},
             {"SEPRIME",        {PLUS,          MINUS}},

@@ -53,9 +53,8 @@ struct Token {
     int type;
     struct {
         std::string s;
-      //  int id;
+        int id;
         char c;
-        //int number;
     } value;
     int line;
     int column;

@@ -1,6 +1,9 @@
-#include "include/compiler.h"
-#include "include/Token.h"
-#include "include/lex.h"
+#include "../include/compiler.h"
+#include "../include/Token.h"
+#include "../include/lex.h"
+#include "../include/SymbolTable.h"
+#include "../include/HashTable.h"
+
 #include <map>
 #include <algorithm>
 #include <iostream>
@@ -11,9 +14,9 @@ void S();
 
 void DECLARATIONS();
 
-void DATA_TYPE();
+int DATA_TYPE();
 
-void NAME_LIST();
+void IDENTIFIER_LIST(int type);
 
 void STATEMENT_LIST();
 
@@ -47,9 +50,17 @@ void ADDOP();
 
 void MULOP();
 
+void UNARYOP();
+
+void UNARY_EXPR();
+
 Token *token;
 
 map <string, vector<int>> FIRST;
+HashMap<string, SymbolTableRow> symbolTable;
+int lastInsertId = -1;
+
+
 
 bool errorFound = false;
 
@@ -59,14 +70,14 @@ bool inFirst(Token *token, string name) {
 }
 
 void next() {
-    delete token;
     token = getNextToken();
 }
 
-void parse_error(string message) {
-    cout << "\nParse Error on line " << token->line << " column " << token->column << "\n";
+void error(string message) {
+    cout << "\nERROR on line " << token->line << " column " << token->column << "\n";
     cout << "Expected: " << message << " Found: " << token->getFormatted() << "\n";
     errorFound = true;
+    //next();
 }
 
 bool accept(int type) {
@@ -80,7 +91,7 @@ bool accept(int type) {
 
 void expect(int type) {
     if (!accept(type)) {
-        parse_error(TYPE_MAPPING[type]);
+        error(TYPE_MAPPING[type]);
     }
 }
 
@@ -88,7 +99,7 @@ void expect(int type) {
 void S() {
     // cout<<"S\n";
 
-    if (accept(NAME)) {
+    if (accept(IDENTIFIER)) {
         expect(OPEN_PAREN);
         expect(CLOSE_PAREN);
         expect(OPEN_BRACE);
@@ -101,43 +112,52 @@ void S() {
 void DECLARATIONS() {
     // cout<<"DECLARATIONS\n";
     if (inFirst(token, "DECLARATIONS")) {
-        DATA_TYPE();
-        NAME_LIST();
+        int type = DATA_TYPE();
+        IDENTIFIER_LIST(type);
         expect(SEMICOLON);
         DECLARATIONS();
     }
 }
 
 
-void DATA_TYPE() {
+int DATA_TYPE() {
     // cout<<"DATA_TYPE\n";
-
+    int type = token->type;
     if (!(accept(KEYWORD_INT) || accept(KEYWORD_CHAR))) {
-        parse_error("int or char");
+        error("int or char");
     }
+    return type;
 }
 
 
-void NAME_LIST() {
-    //cout<<"NAME_LIST\n";
+void IDENTIFIER_LIST(int type) {
+    //cout<<"IDENTIFIER_LIST\n";
 
-    if (accept(NAME)) {
+    if (token->type == IDENTIFIER) {
+        SymbolTableRow row;
+        row.id = ++lastInsertId;
+        row.name = token->value.s;
+        row.type = type;
+        // if(symbolTable.get(row.name,row))
+        symbolTable.insert(row.name, row);
+        //if()
+        next();
         if (accept(COMMA)) {
-            NAME_LIST();
+            IDENTIFIER_LIST(type);
         } else if (accept(OPEN_SQUARE)) {
             expect(NUMBER);
             expect(CLOSE_BRACE);
             if (accept(COMMA)) {
-                NAME_LIST();
+                IDENTIFIER_LIST(type);
             }
         } else if (accept(EQ)) {
             EXPN();
             if (accept(COMMA)) {
-                NAME_LIST();
+                IDENTIFIER_LIST(type);
             }
         }
     } else {
-        parse_error("NAME");
+        error("IDENTIFIER");
     }
 }
 
@@ -155,7 +175,7 @@ void STATEMENT_LIST() {
 void STATEMENT() {
     //cout<<"STATEMENT\n";
 
-    if (token->type == NAME) {
+    if (token->type == IDENTIFIER) {
         ASSIGN_STAT();
         expect(SEMICOLON);
     } else if (token->type == KEYWORD_IF) {
@@ -163,22 +183,22 @@ void STATEMENT() {
     } else if (inFirst(token, "STATEMENT")) {
         LOOPING_STAT();
     } else {
-        parse_error("id, if, while, for");
+        error("id, if, while, for");
     }
 }
 
 void ASSIGN_STAT() {
     //cout<<"ASSIGN_STAT\n";
 
-    expect(NAME);
+    expect(IDENTIFIER);
 
     if (!(
             accept(EQ) || accept(PLUS_EQ) || accept(MINUS_EQ) || accept(MULT_EQ) || accept(DIV_EQ) ||
             accept(MOD_EQ) || accept(AND_EQ) || accept(OR_EQ) || accept(XOR_EQ) ||
             accept(RSHIFT_EQ) || accept(LSHIFT_EQ) || accept(EQ_EQ) || accept(NOT_EQ) || accept(LESS_EQ) ||
-            accept(GREATER_EQ)  || accept(LESS) || accept(EQ_EQ) || accept(NOT_EQ)
+            accept(GREATER_EQ) || accept(GREATER) || accept(LESS) || accept(EQ_EQ) || accept(NOT_EQ)
     )) {
-        parse_error("Expected Assignment Operator");
+        error("Expected Assignment Operator");
     }
     EXPN();
 }
@@ -215,6 +235,14 @@ void SEPRIME() {
     }
 }
 
+void UNARY_EXPR() {
+    if (inFirst(token, "UPRIME")) {
+        UNARYOP();
+        TERM();
+        SIMPLE_EXPN();
+    }
+}
+
 void TERM() {
     // cout<<"TERM\n";
 
@@ -226,15 +254,15 @@ void TPRIME() {
     //  cout<<"TPRIME\n";
     if (inFirst(token, "TPRIME")) {
         MULOP();
-        FACTOR();
+        TERM();
         TPRIME();
     }
 }
 
 void FACTOR() {
     // cout<<"FACTOR\n";
-    if (!(accept(NAME) || accept(NUMBER) || accept(STRING)) || accept(CHAR)) {
-        parse_error("NAME OR NUMBER OR STRING OR CHAR");
+    if (!(accept(IDENTIFIER) || accept(NUMBER) || accept(CHAR))) {
+        error("IDENTIFIER OR NUMBER");
     }
 }
 
@@ -282,7 +310,7 @@ void LOOPING_STAT() {
         STATEMENT_LIST();
         expect(CLOSE_BRACE);
     } else {
-        parse_error("while,for");
+        error("while,for");
     }
 
 
@@ -293,7 +321,7 @@ void RELOP() {
     if (!(accept(EQ_EQ) || accept(NOT_EQ) || accept(LESS_EQ) ||
           accept(GREATER_EQ) || accept(GREATER) || accept(LESS) ||
           accept(EQ_EQ) || accept(NOT_EQ))) {
-        parse_error("==,!=,<=,>=,>,<,==,!=");
+        error("==,!=,<=,>=,>,<,==,!=");
     }
 
 }
@@ -302,7 +330,7 @@ void ADDOP() {
     //cout << "ADDOP\n";
 
     if (!(accept(PLUS) || accept(MINUS))) {
-        parse_error("+,-");
+        error("+,-");
     }
 
 }
@@ -311,22 +339,28 @@ void MULOP() {
     // cout << "MULOP\n";
 
     if (!(accept(MULT) || accept(DIV) || accept(MOD))) {
-        parse_error("*,/,%");
+        error("*,/,%");
     }
 
 }
 
 
+void UNARYOP() {
+    if (!(accept(PLUS_PLUS) || accept(MINUS_MINUS))) {
+        error("++,--");
+    }
+
+}
 int main() {
 
     FIRST = {
             {"DECLARATIONS",   {KEYWORD_INT,   KEYWORD_CHAR}},
             {"TPRIME",         {MULT,          DIV,        MOD}},
-            {"STATEMENT_LIST", {NAME,    KEYWORD_IF, KEYWORD_WHILE, KEYWORD_FOR}},
+            {"STATEMENT_LIST", {IDENTIFIER,    KEYWORD_IF, KEYWORD_WHILE, KEYWORD_FOR}},
             {"STATEMENT",      {KEYWORD_WHILE, KEYWORD_FOR}},
             {"EPRIME",         {EQ_EQ,         NOT_EQ,     LESS_EQ,       GREATER_EQ, GREATER, LESS}},
             {"SEPRIME",        {PLUS,          MINUS}},
-            {"TPRIME",         {MULT,          DIV,        MOD}}
+            {"UPRIME",         {PLUS_PLUS,          MINUS_MINUS}}
     };
 
     char inputFileName[] = "data/input.txt";
@@ -339,6 +373,8 @@ int main() {
         cout << "\nGrammar Correct\n";
     else
         cout << "\nGrammar Incorrect\n";
+
+    symbolTable.print();
 
     compiler_finalize();
     return 0;

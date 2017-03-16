@@ -1,8 +1,8 @@
-#include "include/compiler.h"
 #include "include/Token.h"
 #include "include/lex.h"
 #include "include/SymbolTable.h"
 #include "include/HashTable.h"
+#include "include/parser.h"
 
 #include <map>
 #include <algorithm>
@@ -60,6 +60,15 @@ map <string, vector<int>> FIRST;
 HashMap<string, SymbolTableRow> symbolTable;
 int lastInsertId = -1;
 
+const vector <std::string> RESERVED_KEYWORDS = {
+        "auto", "break", "case", "char", "const",
+        "continue", "default", "do", "double", "else",
+        "enum", "extern", "float", "for", "goto",
+        "if", "int", "long", "register", "return",
+        "short", "signed", "sizeof", "static", "struct",
+        "switch", "typedef", "union", "unsigned", "void",
+        "volatile", "while"
+};
 
 
 bool errorFound = false;
@@ -71,13 +80,26 @@ bool inFirst(Token *token, string name) {
 
 void next() {
     token = getNextToken();
+    if(token->type == NAME) {
+        auto iterator = find(RESERVED_KEYWORDS.begin(),RESERVED_KEYWORDS.end(),token->value.s);
+        if (iterator != RESERVED_KEYWORDS.end()) {
+            token->type = distance(RESERVED_KEYWORDS.begin(),iterator);
+        }
+    }
 }
 
 void error(string message) {
-    cout << "\nERROR on line " << token->line << " column " << token->column << "\n";
+    cout << "\nParse error on line " << token->line << " column " << token->column << "\n";
     cout << "Expected: " << message << " Found: " << token->getFormatted() << "\n";
     errorFound = true;
     //next();
+}
+
+
+void previously_declared_error(Token * current,Token* declared) {
+    cout<<current->value.s<<" already declared on ";
+    cout<<" line "<<declared->line<<" column "<<declared->column<<"\n";
+
 }
 
 bool accept(int type) {
@@ -135,11 +157,16 @@ void IDENTIFIER_LIST(int type) {
 
     if (token->type == NAME) {
         SymbolTableRow row;
-        row.id = ++lastInsertId;
-        row.name = token->value.s;
-        row.type = type;
-        // if(symbolTable.get(row.name,row))
-        symbolTable.insert(row.name, row);
+        if (!symbolTable.get(token->value.s, row)) {
+            row.id = ++lastInsertId;
+            row.name = token->value.s;
+            row.type = type;
+            row.token = token;
+            symbolTable.insert(row.name, row);
+        }
+        else {
+            previously_declared_error(token,row.token);
+        }
         //if()
         next();
         if (accept(COMMA)) {
@@ -351,7 +378,9 @@ void UNARYOP() {
     }
 
 }
-int main() {
+
+
+void parser_initialize() {
 
     FIRST = {
             {"DECLARATIONS",   {KEYWORD_INT,   KEYWORD_CHAR}},
@@ -363,8 +392,6 @@ int main() {
             {"UPRIME",         {PLUS_PLUS,          MINUS_MINUS}}
     };
 
-    char inputFileName[] = "data/input.txt";
-    compiler_initialize(inputFileName);
 
     next();
     S();
@@ -375,7 +402,6 @@ int main() {
         cout << "\nGrammar Incorrect\n";
 
     symbolTable.print();
-
-    compiler_finalize();
-    return 0;
 }
+
+

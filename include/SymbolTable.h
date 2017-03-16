@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "Token.h"
 
 typedef struct {
     std::string name;
@@ -11,6 +12,7 @@ typedef struct {
     std::string arguments;
     std::string returnType;
     int id;
+    Token * token;
 } SymbolTableRow;
 
 

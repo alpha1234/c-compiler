@@ -40,6 +40,6 @@ void shift(FILE *fp, long int m) {
 
 char peek(FILE *fp) {
     char c = fgetc(fp);
-    ungetc(c,fp);
+    ungetc(c, fp);
     return c;
 }

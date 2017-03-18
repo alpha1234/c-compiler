@@ -12,7 +12,7 @@ typedef struct {
     std::string arguments;
     std::string returnType;
     int id;
-    Token * token;
+    Token *token;
 } SymbolTableRow;
 
 

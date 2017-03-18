@@ -12,8 +12,6 @@ extern int line;
 extern int column;
 
 
-
-
 void ungetToken() {
     fseek(fp, filePointerLocation, SEEK_SET);
 }
@@ -29,12 +27,11 @@ void lex_finalize() {
 }
 
 void lex_error(string message) {
-    cout<<"Lex Error at line "<<line<<" column "<<column<<"\n";
-    cout<<message<<"\n";
+    cout << "Lex Error at line " << line << " column " << column << "\n";
+    cout << message << "\n";
     //compiler_finalize();
-   // exit(1);
+    // exit(1);
 }
-
 
 
 void readNumber(Token *token, char c) {
@@ -90,7 +87,7 @@ void readString(Token *token) {
         }
         s.push_back(c);
     }
-    if(c == EOF) {
+    if (c == EOF) {
         lex_error("Unterminated String");
     }
     token->type = STRING;
@@ -144,7 +141,7 @@ void skipWhitespaces() {
             shift(fp, -1);
             break;
         }
-        if(c == '\t') {
+        if (c == '\t') {
             column += 3;
         }
     }
@@ -156,7 +153,7 @@ void skipBlockComment() {
         if (c == '/' && prev == '*') {
             break;
         }
-        if(c == '\n') {
+        if (c == '\n') {
             line++;
             column = 0;
         }
@@ -278,12 +275,10 @@ Token *getNextToken() {
                 if (c == '*') {
                     skipBlockComment();
                     continue;
-                }
-                else if(c == '/') {
+                } else if (c == '/') {
                     skipLineComment();
                     continue;
-                }
-                else if (c == '=') {
+                } else if (c == '=') {
                     token->type = DIV_EQ;
                 } else {
                     shift(fp, -1);

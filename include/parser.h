@@ -1,6 +1,6 @@
 #pragma once
 
-enum class Kind{
+enum class Kind {
     IDENTIFIER,
     TYPE
 };

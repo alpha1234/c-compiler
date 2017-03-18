@@ -11,97 +11,97 @@ using namespace std;
 Token *token;
 
 void next() {
-	token = getNextToken();
+    token = getNextToken();
 }
 
 
-void push(vector<Token*> &stack,Token * item) {
-	stack.push_back(item);
+void push(vector < Token * > &stack, Token * item) {
+    stack.push_back(item);
 }
 
 
-Token* pop(vector<Token*> &stack) {
-	Token* item = stack.back();
-	stack.erase(stack.end() - 1);
+Token *pop(vector < Token * > &stack) {
+    Token *item = stack.back();
+    stack.erase(stack.end() - 1);
 
-	return item;
+    return item;
 }
 
-void printStack(vector<Token*> &stack) {
-	cout<<"\tStack: ";
-	for(const auto &item : stack) {
-		cout<<item->value.s<<" ";
-	}
+void printStack(vector < Token * > &stack) {
+    cout << "\tStack: ";
+    for (const auto &item : stack) {
+        cout << item->value.s << " ";
+    }
 }
 
 string intToString(int num) {
-	string s;
-	while(num) {
-		s.push_back(num % 10 + '0');
-		num /= 10;
-	}
+    string s;
+    while (num) {
+        s.push_back(num % 10 + '0');
+        num /= 10;
+    }
 
-	return s;
+    return s;
 }
 
 int main() {
-	vector<Token*> stack;
+    vector < Token * > stack;
 
-	char inputFileName[] = "data/input.txt";
-	compiler_initialize(inputFileName);
+    char inputFileName[] = "data/input.txt";
+    compiler_initialize(inputFileName);
 
-	Token *token,*first,*second,*temp;
-	string result;
+    Token *token, *first, *second, *temp;
+    string result;
 
-	token = getNextToken();
-	while(token->type != TEOF) {
-		switch(token->type) {
-			case NUMBER:
-				push(stack,token);
-				cout<<"mov r"<<stack.size() - 1<<","<<token->value.s;
-				break;
+    token = getNextToken();
+    while (token->type != TEOF) {
+        switch (token->type) {
+            case NUMBER:
+                push(stack, token);
+                cout << "mov r" << stack.size() - 1 << "," << token->value.s;
+                break;
 
 
-			case PLUS :
-			case MULT :
-			case MINUS :
-			case DIV :
-				second =  pop(stack);
-				first = pop(stack);
-				switch(token->type) {
-			case PLUS:
-				cout<<"add r"<<stack.size()<<",r"<<stack.size() + 1;
-				result = intToString(atoi(first->value.s.c_str()) + atoi(second->value.s.c_str()));
-				break;
-				
-			case MULT:
-				cout<<"mul r"<<stack.size()<<",r"<<stack.size() + 1;
-				result = intToString(atoi(first->value.s.c_str()) * atoi(second->value.s.c_str()));
-				break;
+            case PLUS :
+            case MULT :
+            case MINUS :
+            case DIV :
+                second = pop(stack);
+                first = pop(stack);
+                switch (token->type) {
+                    case PLUS:
+                        cout << "add r" << stack.size() << ",r" << stack.size() + 1;
+                        result = intToString(atoi(first->value.s.c_str()) + atoi(second->value.s.c_str()));
+                        break;
 
-			case DIV:
-				cout<<"div r"<<stack.size()<<",r"<<stack.size() + 1;
-				result = intToString(atoi(first->value.s.c_str()) / atoi(second->value.s.c_str()));
-				break;
+                    case MULT:
+                        cout << "mul r" << stack.size() << ",r" << stack.size() + 1;
+                        result = intToString(atoi(first->value.s.c_str()) * atoi(second->value.s.c_str()));
+                        break;
 
-			case MINUS:
-				cout<<"sub r"<<stack.size()<<",r"<<stack.size() + 1;
-				result = intToString(atoi(first->value.s.c_str()) - atoi(second->value.s.c_str()));
-				break;
-			}
-				temp = new Token;
-				temp->type = NUMBER;
-				temp->value.s = result;
-				push(stack,temp);
-				printStack(stack);
-				break;
-		}
-		cout<<"\n";
-		token = getNextToken();
-	}
+                    case DIV:
+                        cout << "div r" << stack.size() << ",r" << stack.size() + 1;
+                        result = intToString(atoi(first->value.s.c_str()) / atoi(second->value.s.c_str()));
+                        break;
 
-	cout<<"Result: "<<pop(stack)->value.s<<"\n";
-	compiler_finalize();
-	return 0;
+                    case MINUS:
+                        cout << "sub r" << stack.size() << ",r" << stack.size() + 1;
+                        result = intToString(atoi(first->value.s.c_str()) - atoi(second->value.s.c_str()));
+                        break;
+                }
+                temp = new Token;
+                temp->type = NUMBER;
+                temp->value.s = result;
+                push(stack, temp);
+                printStack(stack);
+                break;
+        }
+        cout << "\n";
+        token = getNextToken();
+    }
+
+    cout << "Result: " << pop(stack)->value.s << "\n";
+    compiler_finalize();
+    return 0;
 
 }

@@ -7,7 +7,7 @@ using namespace std;
 
 
 void compiler_initialize(char *inputFileName) {
-   processIncludes(inputFileName,TEMPFILE);
+    processIncludes(inputFileName, TEMPFILE);
 
     lex_initialize(TEMPFILE);
 

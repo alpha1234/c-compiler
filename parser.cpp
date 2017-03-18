@@ -80,10 +80,10 @@ bool inFirst(Token *token, string name) {
 
 void next() {
     token = getNextToken();
-    if(token->type == NAME) {
-        auto iterator = find(RESERVED_KEYWORDS.begin(),RESERVED_KEYWORDS.end(),token->value.s);
+    if (token->type == NAME) {
+        auto iterator = find(RESERVED_KEYWORDS.begin(), RESERVED_KEYWORDS.end(), token->value.s);
         if (iterator != RESERVED_KEYWORDS.end()) {
-            token->type = distance(RESERVED_KEYWORDS.begin(),iterator);
+            token->type = distance(RESERVED_KEYWORDS.begin(), iterator);
         }
     }
 }
@@ -96,9 +96,9 @@ void error(string message) {
 }
 
 
-void previously_declared_error(Token * current,Token* declared) {
-    cout<<current->value.s<<" already declared on ";
-    cout<<" line "<<declared->line<<" column "<<declared->column<<"\n";
+void previously_declared_error(Token *current, Token *declared) {
+    cout << current->value.s << " already declared on ";
+    cout << " line " << declared->line << " column " << declared->column << "\n";
 
 }
 
@@ -163,9 +163,8 @@ void IDENTIFIER_LIST(int type) {
             row.type = type;
             row.token = token;
             symbolTable.insert(row.name, row);
-        }
-        else {
-            previously_declared_error(token,row.token);
+        } else {
+            previously_declared_error(token, row.token);
         }
         //if()
         next();
@@ -385,11 +384,11 @@ void parser_initialize() {
     FIRST = {
             {"DECLARATIONS",   {KEYWORD_INT,   KEYWORD_CHAR}},
             {"TPRIME",         {MULT,          DIV,        MOD}},
-            {"STATEMENT_LIST", {NAME,    KEYWORD_IF, KEYWORD_WHILE, KEYWORD_FOR}},
+            {"STATEMENT_LIST", {NAME,          KEYWORD_IF, KEYWORD_WHILE, KEYWORD_FOR}},
             {"STATEMENT",      {KEYWORD_WHILE, KEYWORD_FOR}},
             {"EPRIME",         {EQ_EQ,         NOT_EQ,     LESS_EQ,       GREATER_EQ, GREATER, LESS}},
             {"SEPRIME",        {PLUS,          MINUS}},
-            {"UPRIME",         {PLUS_PLUS,          MINUS_MINUS}}
+            {"UPRIME",         {PLUS_PLUS,     MINUS_MINUS}}
     };
 
 

@@ -1,8 +1,6 @@
 #include "../include/compiler.h"
 #include "../include/Token.h"
 #include "../include/lex.h"
-#include <map>
-#include <algorithm>
 #include <iostream>
 #include <vector>
 
@@ -32,6 +30,7 @@ void printStack(vector < Token * > &stack) {
     for (const auto &item : stack) {
         cout << item->value.s << " ";
     }
+	cout << "\n";
 }
 
 string intToString(int num) {
@@ -55,10 +54,11 @@ int main() {
 
     token = getNextToken();
     while (token->type != TEOF) {
+		
         switch (token->type) {
             case NUMBER:
                 push(stack, token);
-                cout << "mov r" << stack.size() - 1 << "," << token->value.s;
+                cout << "mov r" << stack.size() - 1 << "," << token->value.s<<"\n";
                 break;
 
 
@@ -70,22 +70,22 @@ int main() {
                 first = pop(stack);
                 switch (token->type) {
                     case PLUS:
-                        cout << "add r" << stack.size() << ",r" << stack.size() + 1;
+                        cout << "add r" << stack.size() << ",r" << stack.size() + 1<<"\n";
                         result = intToString(atoi(first->value.s.c_str()) + atoi(second->value.s.c_str()));
                         break;
 
                     case MULT:
-                        cout << "mul r" << stack.size() << ",r" << stack.size() + 1;
+                        cout << "mul r" << stack.size() << ",r" << stack.size() + 1<<"\n";
                         result = intToString(atoi(first->value.s.c_str()) * atoi(second->value.s.c_str()));
                         break;
 
                     case DIV:
-                        cout << "div r" << stack.size() << ",r" << stack.size() + 1;
+                        cout << "div r" << stack.size() << ",r" << stack.size() + 1<<"\n";
                         result = intToString(atoi(first->value.s.c_str()) / atoi(second->value.s.c_str()));
                         break;
 
                     case MINUS:
-                        cout << "sub r" << stack.size() << ",r" << stack.size() + 1;
+                        cout << "sub r" << stack.size() << ",r" << stack.size() + 1<<"\n";
                         result = intToString(atoi(first->value.s.c_str()) - atoi(second->value.s.c_str()));
                         break;
                 }
@@ -96,7 +96,6 @@ int main() {
                 printStack(stack);
                 break;
         }
-        cout << "\n";
         token = getNextToken();
     }
 

@@ -5,7 +5,7 @@ BIN=compiler
 
 BUILD_DIR = ./build
 
-CPP = compiler.cpp common.cpp preprocessor.cpp lex.cpp main.cpp $(file)
+CPP = compiler.cpp common.cpp preprocessor.cpp lex.cpp $(file)
 
 OBJ = $(CPP:%.cpp=$(BUILD_DIR)/%.o)
 DEP = $(OBJ:%.o=%.d)
